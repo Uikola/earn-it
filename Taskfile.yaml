@@ -1,0 +1,109 @@
+version: '3'
+
+# Глобальные переменные проекта
+vars:
+  BIN_DIR: '{{.ROOT_DIR}}/bin'
+  GOLANGCI_LINT: '{{.BIN_DIR}}/golangci-lint'
+  GCI: '{{.BIN_DIR}}/gci'
+  GOFUMPT: '{{.BIN_DIR}}/gofumpt'
+  OGEN: '{{.BIN_DIR}}/ogen'
+  GOOSE: '{{.BIN_DIR}}/goose'
+  SQLC: '{{.BIN_DIR}}/sqlc'
+
+tasks:
+  install-formatters:
+    desc: "Устанавливает форматтеры gci и gofumpt в ./bin"
+    cmds:
+      - |
+        [ -f {{.GOFUMPT}} ] || {
+          echo '📦 Устанавливаем gofumpt...'
+          GOBIN={{.BIN_DIR}} go install mvdan.cc/gofumpt@latest
+        }
+        [ -f {{.GCI}} ] || {
+          echo '📦 Устанавливаем gci...'
+          GOBIN={{.BIN_DIR}} go install github.com/daixiang0/gci@latest
+        }
+    status:
+      - test -x {{.GOFUMPT}}
+      - test -x {{.GCI}}
+  install-sqlc:
+    cmds:
+      - |
+        [ -f {{.SQLC}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Устанавливаем sqlc..."
+          GOBIN={{.BIN_DIR}} go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+        }
+
+  format:
+    desc: "Форматирует весь проект gofumpt + gci"
+    deps: [ install-formatters ]
+    cmds:
+      - |
+        echo "🧼 Форматируем через gofumpt ..."
+        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GOFUMPT}} -extra -w {} +
+      - |
+        echo "🎯 Сортируем импорты через gci ..."
+        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GCI}} write -s standard -s default -s "prefix(github.com/Uikola/keepflame/)" {} +
+
+  install-golangci-lint:
+    desc: "Устанавливает golangci-lint в каталог bin"
+    cmds:
+      - |
+        [ -f {{.GOLANGCI_LINT}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Устанавливаем golangci-lint..."
+          GOBIN={{.BIN_DIR}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+        }
+    status:
+      - test -x {{.GOLANGCI_LINT}}
+
+  lint:
+    desc: "Запускает golangci-lint для всех модулей"
+    deps: [ install-golangci-lint ]
+    cmds:
+      - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yaml'
+
+  install-ogen:
+    desc: "Устанавливает ogen"
+    cmds:
+      - |
+        [ -f {{.OGEN}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Устанавливаем ogen..."
+          GOBIN={{.BIN_DIR}} go install github.com/ogen-go/ogen/cmd/ogen@latest
+        }
+    status:
+      - test -x {{.OGEN}}
+
+  ogen-generate:
+    desc: "Генерирует код по openapi спеке, используя ogen"
+    deps: [ install-ogen ]
+    cmd: go generate ./...
+
+  install-goose:
+    desc: "Устанавливает goose мигратор"
+    cmds:
+      - |
+        [ -f {{.GOOSE}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Устанавливаем goose..."
+          GOBIN={{.BIN_DIR}} go install github.com/pressly/goose/v3/cmd/goose@latest
+        }
+    status:
+      - test -x {{.GOOSE}}
+
+  create-migration:
+    desc: "Создаёт миграцию с помозью goose"
+    deps: [ install-goose ]
+    cmd: GOOSE_MIGRATION_DIR=migrations {{.GOOSE}} create change_my_name sql
+
+  migrate:
+    desc: "Применяет все миграции"
+    deps: [ install-goose ]
+    cmd: GOOSE_MIGRATION_DIR=migrations {{.GOOSE}} up
+
+  pre-commit:
+    desc: "Прогоняет сперва format, затем lint. Нужен для запуска перед коммитом"
+    deps: [ format, lint ]
+    cmd: echo "Теперь можно коммитить"
