@@ -22,8 +22,8 @@ func WithTx(tx pgx.Tx) *Repository {
 	return &Repository{q: sqlc.New(tx)}
 }
 
-func (r *Repository) UserByID(ctx context.Context, id int) (models.User, error) {
-	user, err := r.q.UserByID(ctx, int64(id))
+func (r *Repository) UserByID(ctx context.Context, id int64) (models.User, error) {
+	user, err := r.q.UserByID(ctx, id)
 	if err != nil {
 		return models.User{}, err
 	}

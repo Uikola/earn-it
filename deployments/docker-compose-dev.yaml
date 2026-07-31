@@ -17,6 +17,13 @@ services:
     volumes:
       - database:/var/lib/postgresql
     restart: always
+  redis:
+    container_name: redis
+    image: "redis:latest"
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
+    restart: always
 
 volumes:
   database:
