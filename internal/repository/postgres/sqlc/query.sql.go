@@ -237,36 +237,6 @@ func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
 	return err
 }
 
-const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, timezone
-FROM users
-`
-
-type GetAllUsersRow struct {
-	ID       int64
-	Timezone pgtype.Text
-}
-
-func (q *Queries) GetAllUsers(ctx context.Context) ([]GetAllUsersRow, error) {
-	rows, err := q.db.Query(ctx, getAllUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetAllUsersRow
-	for rows.Next() {
-		var i GetAllUsersRow
-		if err := rows.Scan(&i.ID, &i.Timezone); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getBalanceByUserID = `-- name: GetBalanceByUserID :one
 SELECT balance
 FROM users
@@ -734,6 +704,37 @@ func (q *Queries) UserByID(ctx context.Context, id int64) (User, error) {
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const users = `-- name: Users :many
+SELECT id, timezone, balance, reward_weekly_bonus, created_at
+FROM users
+`
+
+func (q *Queries) Users(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, users)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Timezone,
+			&i.Balance,
+			&i.RewardWeeklyBonus,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const weeklyBonus = `-- name: WeeklyBonus :one

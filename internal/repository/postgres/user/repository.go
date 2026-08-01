@@ -25,6 +25,22 @@ func (r *Repository) queries(ctx context.Context) *sqlc.Queries {
 	return sqlc.New(executor) // executor реализует интерфейс sqlc.DBTX
 }
 
+func (r *Repository) Users(ctx context.Context) ([]models.User, error) {
+	q := r.queries(ctx)
+
+	users, err := q.Users(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	domainUsers := make([]models.User, 0, len(users))
+	for _, u := range users {
+		domainUsers = append(domainUsers, toDomainUser(u))
+	}
+
+	return domainUsers, nil
+}
+
 func (r *Repository) UserByID(ctx context.Context, id int64) (models.User, error) {
 	q := r.queries(ctx)
 

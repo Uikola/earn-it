@@ -182,8 +182,8 @@ WHERE user_id = $1
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3;
 
--- name: GetAllUsers :many
-SELECT id, timezone
+-- name: Users :many
+SELECT *
 FROM users;
 
 -- name: GetBalanceByUserID :one

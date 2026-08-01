@@ -111,6 +111,39 @@ func (r *Repository) HabitLogsForWeek(
 	return domainLogs, nil
 }
 
+func (r *Repository) WeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) (models.WeeklyBonus, error) {
+	q := r.queries(ctx)
+
+	weekStartParam := pgtype.Date{
+		Time:  weekStart,
+		Valid: true,
+	}
+
+	bonus, err := q.WeeklyBonus(ctx, sqlc.WeeklyBonusParams{
+		UserID:    userID,
+		WeekStart: weekStartParam,
+	})
+	if err != nil {
+		return models.WeeklyBonus{}, err
+	}
+
+	return toDomainWeeklyBonus(bonus), nil
+}
+
+func (r *Repository) CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) error {
+	q := r.queries(ctx)
+
+	weekStartParam := pgtype.Date{
+		Time:  weekStart,
+		Valid: true,
+	}
+
+	return q.CreateWeeklyBonus(ctx, sqlc.CreateWeeklyBonusParams{
+		UserID:    userID,
+		WeekStart: weekStartParam,
+	})
+}
+
 func toDomainHabit(h sqlc.Habit) models.Habit {
 	return models.Habit{
 		ID:               h.ID,
@@ -127,5 +160,14 @@ func toDomainHabitLog(l sqlc.HabitLog) models.HabitLog {
 		ID:         l.ID,
 		HabitID:    l.HabitID,
 		ExecutedAt: l.ExecutedAt.Time,
+	}
+}
+
+func toDomainWeeklyBonus(b sqlc.WeeklyBonuse) models.WeeklyBonus {
+	return models.WeeklyBonus{
+		ID:        b.ID,
+		UserID:    b.UserID,
+		WeekStart: b.WeekStart.Time,
+		ClaimedAt: b.ClaimedAt.Time,
 	}
 }
