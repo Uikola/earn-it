@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/google/martian/log"
 	tele "gopkg.in/telebot.v3"
 
 	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
+	"github.com/Uikola/earn-it/internal/timeutil"
 )
 
 func (h *Handler) NewHabit(c tele.Context) error {
@@ -79,12 +81,18 @@ func (h *Handler) NewHabit(c tele.Context) error {
 		return nil
 	}
 
+	loc, err := time.LoadLocation(user.Timezone)
+	if err != nil {
+		loc = time.UTC
+	}
+	weekStart := timeutil.WeekStart(time.Now(), loc)
+
 	return c.Send(
 		h.layout.Text(c, "habits_menu_text", struct {
 			Habits            []habitToPrint
 			RewardWeeklyBonus int32
 		}{
-			Habits:            h.habitsToPrint(ctx, c, user.Timezone, habits),
+			Habits:            h.habitsToPrint(ctx, c, weekStart, habits),
 			RewardWeeklyBonus: user.RewardWeeklyBonus,
 		}),
 		h.layout.Markup(c, "habitsMenu"),

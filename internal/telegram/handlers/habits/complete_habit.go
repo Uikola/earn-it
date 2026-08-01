@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/google/martian/log"
 	tele "gopkg.in/telebot.v3"
+
+	"github.com/Uikola/earn-it/internal/timeutil"
 )
 
 func (h *Handler) CompleteHabits(c tele.Context) error {
@@ -23,10 +26,16 @@ func (h *Handler) CompleteHabits(c tele.Context) error {
 		return nil
 	}
 
+	loc, err := time.LoadLocation(user.Timezone)
+	if err != nil {
+		loc = time.UTC
+	}
+	weekStart := timeutil.WeekStart(time.Now(), loc)
+
 	var rows []tele.Row
 	markup := c.Bot().NewMarkup()
 	for _, habit := range habits {
-		habitLogsForWeek, err := h.habitsRepository.HabitLogsForWeek(ctx, habit.ID, user.Timezone)
+		habitLogsForWeek, err := h.habitsRepository.HabitLogsForWeek(ctx, habit.ID, weekStart)
 		if err != nil {
 			log.Errorf("failed to fetch habit logs for week: %v", err)
 			return c.Edit(
@@ -113,12 +122,18 @@ func (h *Handler) CompleteHabit(c tele.Context) error {
 		)
 	}
 
+	loc, err := time.LoadLocation(user.Timezone)
+	if err != nil {
+		loc = time.UTC
+	}
+	weekStart := timeutil.WeekStart(time.Now(), loc)
+
 	return c.Edit(
 		h.layout.Text(c, "habits_menu_text", struct {
 			Habits            []habitToPrint
 			RewardWeeklyBonus int32
 		}{
-			Habits:            h.habitsToPrint(ctx, c, user.Timezone, habits),
+			Habits:            h.habitsToPrint(ctx, c, weekStart, habits),
 			RewardWeeklyBonus: user.RewardWeeklyBonus,
 		}),
 		h.layout.Markup(c, "habitsMenu"),

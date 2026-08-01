@@ -86,25 +86,12 @@ func (r *Repository) CreateHabitLog(ctx context.Context, habitID int64) error {
 func (r *Repository) HabitLogsForWeek(
 	ctx context.Context,
 	habitID int64,
-	timezoneStr string,
-) ([]sqlc.HabitLog, error) {
+	weekStart time.Time,
+) ([]models.HabitLog, error) {
 	q := r.queries(ctx)
 
-	loc, err := time.LoadLocation(timezoneStr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid timezone %q: %w", timezoneStr, err)
-	}
-
-	now := time.Now().In(loc)
-
-	weekday := now.Weekday()
-	offset := (int(weekday) - int(time.Monday) + 7) % 7
-	weekStartLocal := now.AddDate(0, 0, -offset).Truncate(24 * time.Hour)
-
-	weekStartUTC := weekStartLocal.UTC()
-
 	weekStartParam := pgtype.Timestamptz{
-		Time:  weekStartUTC,
+		Time:  weekStart,
 		Valid: true,
 	}
 
@@ -116,7 +103,12 @@ func (r *Repository) HabitLogsForWeek(
 		return nil, fmt.Errorf("failed to get habit logs: %w", err)
 	}
 
-	return logs, nil
+	domainLogs := make([]models.HabitLog, 0, len(logs))
+	for _, log := range logs {
+		domainLogs = append(domainLogs, toDomainHabitLog(log))
+	}
+
+	return domainLogs, nil
 }
 
 func toDomainHabit(h sqlc.Habit) models.Habit {
@@ -127,5 +119,13 @@ func toDomainHabit(h sqlc.Habit) models.Habit {
 		WeaklyGoal:       h.WeeklyGoal,
 		RewardPerExecute: h.RewardPerExecute,
 		CreatedAt:        h.CreatedAt.Time,
+	}
+}
+
+func toDomainHabitLog(l sqlc.HabitLog) models.HabitLog {
+	return models.HabitLog{
+		ID:         l.ID,
+		HabitID:    l.HabitID,
+		ExecutedAt: l.ExecutedAt.Time,
 	}
 }

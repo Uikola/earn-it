@@ -2,6 +2,7 @@ package habits
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/martian/log"
 	"github.com/nlypage/intele"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/Uikola/earn-it/internal/models"
 	"github.com/Uikola/earn-it/internal/repository/postgres"
-	"github.com/Uikola/earn-it/internal/repository/postgres/sqlc"
 )
 
 type habitRepository interface {
@@ -20,7 +20,7 @@ type habitRepository interface {
 	DeleteHabit(ctx context.Context, habitID int64) error
 
 	CreateHabitLog(ctx context.Context, habitID int64) error
-	HabitLogsForWeek(ctx context.Context, habitID int64, timezoneStr string) ([]sqlc.HabitLog, error)
+	HabitLogsForWeek(ctx context.Context, habitID int64, weekStart time.Time) ([]models.HabitLog, error)
 }
 
 type userRepository interface {
@@ -120,10 +120,10 @@ func (h *Handler) habitsByUserIDWithProcessedError(ctx context.Context, c tele.C
 	return habits
 }
 
-func (h *Handler) habitsToPrint(ctx context.Context, c tele.Context, timezone string, habits []models.Habit) []habitToPrint {
+func (h *Handler) habitsToPrint(ctx context.Context, c tele.Context, weekStart time.Time, habits []models.Habit) []habitToPrint {
 	habitsToPrint := make([]habitToPrint, 0, len(habits))
 	for _, habit := range habits {
-		habitLogsForWeek, err := h.habitsRepository.HabitLogsForWeek(ctx, habit.ID, timezone)
+		habitLogsForWeek, err := h.habitsRepository.HabitLogsForWeek(ctx, habit.ID, weekStart)
 		if err != nil {
 			log.Errorf("failed to fetch habit logs for week: %v", err)
 			if err := c.Edit(
