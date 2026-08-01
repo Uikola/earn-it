@@ -52,7 +52,7 @@ func New(
 }
 
 func (s *Scheduler) Start() {
-	_, err := s.cron.AddFunc("@every 1m", s.processWeeklyBonuses)
+	_, err := s.cron.AddFunc("@every 1h", s.processWeeklyBonuses)
 	if err != nil {
 		slog.Error("failed to add weekly bonus job", slog.String("error", err.Error()))
 		return
