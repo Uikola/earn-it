@@ -18,6 +18,7 @@ import (
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/scheduler"
 	"github.com/Uikola/earn-it/internal/telegram"
+	"github.com/Uikola/earn-it/internal/telegram/notifier"
 )
 
 func main() {
@@ -52,14 +53,16 @@ func run(ctx context.Context) error {
 	userRepository := user.NewRepository(db)
 	habitRepository := habit.NewRepository(db)
 
-	sched := scheduler.New(transactor, userRepository, habitRepository)
-	sched.Start()
-	defer sched.Stop()
-
 	bot, err := telegram.NewBot(stateRepository)
 	if err != nil {
 		return fmt.Errorf("failed to create bot: %w", err)
 	}
+
+	notif := notifier.New(bot.Bot, bot.Layout)
+
+	sched := scheduler.New(transactor, userRepository, habitRepository, notif)
+	sched.Start()
+	defer sched.Stop()
 
 	bot.Setup(transactor, userRepository, habitRepository)
 

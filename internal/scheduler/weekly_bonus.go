@@ -85,4 +85,8 @@ func (s *Scheduler) processUserWeeklyBonus(ctx context.Context, userID int64, ti
 	}
 
 	slog.Info("weekly bonus awarded", slog.Int64("user_id", userID), slog.Int("amount", int(rewardWeeklyBonus)))
+
+	if err := s.notifier.Notify(userID, "weekly_bonus_notification", struct{ Amount int32 }{rewardWeeklyBonus}); err != nil {
+		slog.Error("failed to send notification", slog.Int64("user_id", userID), slog.String("error", err.Error()))
+	}
 }

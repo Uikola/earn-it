@@ -24,28 +24,35 @@ type habitRepository interface {
 	CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) error
 }
 
+type notifier interface {
+	Notify(userID int64, textKey string, data any) error
+}
+
 type Scheduler struct {
 	cron            *cron.Cron
 	transactor      postgres.Transactor
 	userRepository  userRepository
 	habitRepository habitRepository
+	notifier        notifier
 }
 
 func New(
 	transactor postgres.Transactor,
 	userRepository userRepository,
 	habitRepository habitRepository,
+	notifier notifier,
 ) *Scheduler {
 	return &Scheduler{
 		cron:            cron.New(),
 		transactor:      transactor,
 		userRepository:  userRepository,
 		habitRepository: habitRepository,
+		notifier:        notifier,
 	}
 }
 
 func (s *Scheduler) Start() {
-	_, err := s.cron.AddFunc("@every 1h", s.processWeeklyBonuses)
+	_, err := s.cron.AddFunc("@every 1m", s.processWeeklyBonuses)
 	if err != nil {
 		slog.Error("failed to add weekly bonus job", slog.String("error", err.Error()))
 		return
