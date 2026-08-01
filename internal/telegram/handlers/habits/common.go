@@ -3,13 +3,14 @@ package habits
 import (
 	"context"
 
-	"github.com/Uikola/earn-it/internal/models"
-	"github.com/Uikola/earn-it/internal/repository/postgres"
-	"github.com/Uikola/earn-it/internal/repository/postgres/sqlc"
 	"github.com/google/martian/log"
 	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
+
+	"github.com/Uikola/earn-it/internal/models"
+	"github.com/Uikola/earn-it/internal/repository/postgres"
+	"github.com/Uikola/earn-it/internal/repository/postgres/sqlc"
 )
 
 type habitRepository interface {

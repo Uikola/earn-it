@@ -5,9 +5,10 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
 	"github.com/google/martian/log"
 	tele "gopkg.in/telebot.v3"
+
+	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
 )
 
 func (h *Handler) NewHabit(c tele.Context) error {
@@ -73,7 +74,7 @@ func (h *Handler) NewHabit(c tele.Context) error {
 		return nil
 	}
 
-	habits := h.habitsByUserIDWithProcessedError(ctx, c, userID, "edit")
+	habits := h.habitsByUserIDWithProcessedError(ctx, c, userID, "send")
 	if habits == nil {
 		return nil
 	}

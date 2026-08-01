@@ -3,16 +3,17 @@ package telegram
 import (
 	"strings"
 
+	"github.com/nlypage/intele"
+	tele "gopkg.in/telebot.v3"
+	"gopkg.in/telebot.v3/layout"
+	"gopkg.in/telebot.v3/middleware"
+
 	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/start"
-	"github.com/nlypage/intele"
-	tele "gopkg.in/telebot.v3"
-	"gopkg.in/telebot.v3/layout"
-	"gopkg.in/telebot.v3/middleware"
 )
 
 type Bot struct {

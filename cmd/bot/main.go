@@ -10,12 +10,13 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/joho/godotenv"
+
 	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram"
-	"github.com/joho/godotenv"
 )
 
 func main() {

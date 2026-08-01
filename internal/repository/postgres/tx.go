@@ -47,13 +47,13 @@ func (t *pgxTransactor) WithinTransaction(ctx context.Context, fn func(ctx conte
 	}
 	defer func() {
 		if p := recover(); p != nil {
-			_ = tx.Rollback(ctx)
+			tx.Rollback(ctx)
 			panic(p)
 		}
 	}()
 
 	if err = fn(injectTx(ctx, tx)); err != nil {
-		_ = tx.Rollback(ctx)
+		tx.Rollback(ctx)
 		return err
 	}
 

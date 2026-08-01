@@ -6,12 +6,13 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/Uikola/earn-it/internal/models"
-	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
 	"github.com/google/martian/log"
 	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
+
+	"github.com/Uikola/earn-it/internal/models"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
 )
 
 type userRepository interface {

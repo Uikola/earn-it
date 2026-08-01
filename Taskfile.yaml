@@ -44,7 +44,7 @@ tasks:
         find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GOFUMPT}} -extra -w {} +
       - |
         echo "🎯 Сортируем импорты через gci ..."
-        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GCI}} write -s standard -s default -s "prefix(github.com/Uikola/keepflame/)" {} +
+        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GCI}} write -s standard -s default -s "prefix(github.com/Uikola/earn-it/)" {} +
 
   install-golangci-lint:
     desc: "Устанавливает golangci-lint в каталог bin"

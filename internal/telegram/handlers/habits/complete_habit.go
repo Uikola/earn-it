@@ -96,12 +96,12 @@ func (h *Handler) CompleteHabit(c tele.Context) error {
 
 	err = h.transactor.WithinTransaction(ctx, func(txctx context.Context) error {
 		if err := h.habitsRepository.CreateHabitLog(txctx, habitID); err != nil {
-			return fmt.Errorf("failed to create habit: %v", err)
+			return fmt.Errorf("failed to create habit: %w", err)
 		}
 
 		user.Balance += habit.RewardPerExecute
 		if err := h.userRepository.UpdateUser(ctx, *user); err != nil {
-			return fmt.Errorf("failed to update user: %v", err)
+			return fmt.Errorf("failed to update user: %w", err)
 		}
 		return nil
 	})
