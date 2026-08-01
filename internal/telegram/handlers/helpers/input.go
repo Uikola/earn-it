@@ -34,7 +34,9 @@ func CollectInput(
 	firstStepSend bool,
 ) (map[string]string, error) {
 	ic := collector.New()
-	ic.Collect(c.Message())
+	if !firstStepSend {
+		ic.Collect(c.Message())
+	}
 
 	results := make(map[string]string, len(steps))
 	isFirst := true
@@ -47,10 +49,14 @@ func CollectInput(
 
 		if isFirst {
 			if firstStepSend {
+				var msg *tele.Message
 				if stepMarkup != nil {
-					_ = c.Send(layout.Text(c, step.PromptKey), stepMarkup)
+					msg, _ = c.Bot().Send(c.Chat(), layout.Text(c, step.PromptKey), stepMarkup)
 				} else {
-					_ = c.Send(layout.Text(c, step.PromptKey))
+					msg, _ = c.Bot().Send(c.Chat(), layout.Text(c, step.PromptKey))
+				}
+				if msg != nil {
+					ic.Collect(msg)
 				}
 			} else {
 				if stepMarkup != nil {
