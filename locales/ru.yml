@@ -30,10 +30,16 @@ habits_menu_text: |-
   {{ if .Habits }}{{ range .Habits }}───────────────────────{{"\n"}}<b>{{ .Name }}</b>{{"\n"}}▸ Прогресс за неделю: {{ .WeaklyGoalDone }}/{{ .WeaklyGoal }}{{ if .WeaklyGoalCompleted }} ✅{{ else }} ❌{{ end }}{{"\n"}}▸ +{{ .RewardPerExecute }} 🪙 за выполнение{{"\n"}}───────────────────────{{"\n"}}{{ end }}За успешную неделю +{{ .RewardWeeklyBonus }} 🪙{{ else }}<i>- Отсутствуют</i>{{ end }}
 input_habit_name: |-
   Введите название привычки
+invalid_habit_name: |-
+  Название привычки не должно быть пустым
 input_habit_weakly_goal: |-
   Введите цель выполнения привычки на неделю
+invalid_habit_weakly_goal: |-
+  Цель на неделю должна быть положительным числом
 input_habit_reward_per_execute: |-
   Введите награду за выполение привычки
+invalid_habit_reward_per_execute: |-
+  Награда за выполнение должна быть положительным числом
 habit_created:
   Новая привычка создана! Вперёд к победе
 

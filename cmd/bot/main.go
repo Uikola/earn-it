@@ -39,6 +39,8 @@ func run(ctx context.Context) error {
 	defer redisClient.Close()
 
 	stateRepository := redis.NewStateRepository(redisClient)
+
+	transactor := postgres.NewPgxTransactor(db)
 	userRepository := user.NewRepository(db)
 	habitRepository := habit.NewRepository(db)
 
@@ -47,7 +49,7 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("failed to create bot: %w", err)
 	}
 
-	bot.Setup(userRepository, habitRepository)
+	bot.Setup(transactor, userRepository, habitRepository)
 
 	errChan := make(chan error, 1)
 	go func() {

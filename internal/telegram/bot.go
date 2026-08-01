@@ -3,10 +3,12 @@ package telegram
 import (
 	"strings"
 
+	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram/handlers"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
 	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
@@ -50,11 +52,12 @@ func NewBot(redisClient *redis.StateRepository) (*Bot, error) {
 }
 
 func (bot *Bot) Setup(
+	transactor postgres.Transactor,
 	userRepository *user.Repository,
 	habitRepository *habit.Repository,
 ) {
 	startHandler := handlers.NewStartHandler(bot.Layout, userRepository)
-	habitsHandler := handlers.NewHabitsHandler(bot.Layout, bot.Input, habitRepository, userRepository)
+	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository)
 
 	bot.Use(bot.Layout.Middleware("ru"))
 	bot.Use(middleware.AutoRespond())
