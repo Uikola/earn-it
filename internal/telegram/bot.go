@@ -73,7 +73,12 @@ func (bot *Bot) Setup(
 	bot.Handle(bot.Layout.Callback("mainMenuBack"), startHandler.MainMenu)
 
 	bot.Handle(bot.Layout.Callback("habitsMenu"), habitsHandler.Habits)
+	bot.Handle(bot.Layout.Callback("habitsMenuBack"), habitsHandler.Habits)
 	bot.Handle(bot.Layout.Callback("habits:new"), habitsHandler.NewHabit)
+	bot.Handle(bot.Layout.Callback("habits:complete"), habitsHandler.CompleteHabits)
+	bot.Handle(bot.Layout.Callback("habits:complete:habit"), habitsHandler.CompleteHabit)
+	bot.Handle(bot.Layout.Callback("habits:delete"), habitsHandler.DeleteHabits)
+	bot.Handle(bot.Layout.Callback("habits:delete:habit"), habitsHandler.DeleteHabit)
 }
 
 // ResetInputOnBack middleware clears the input state when the back button is pressed.

@@ -3,35 +3,43 @@ package user
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/Uikola/earn-it/internal/models"
 	"github.com/Uikola/earn-it/internal/repository/postgres/sqlc"
 )
 
 type Repository struct {
-	q *sqlc.Queries
+	pool *pgxpool.Pool
 }
 
-func NewRepository(db sqlc.DBTX) *Repository {
-	return &Repository{q: sqlc.New(db)}
+func NewRepository(pool *pgxpool.Pool) *Repository {
+	return &Repository{pool: pool}
 }
 
-func WithTx(tx pgx.Tx) *Repository {
-	return &Repository{q: sqlc.New(tx)}
+// вспомогательный метод для получения sqlc.Queries с executor из контекста
+func (r *Repository) queries(ctx context.Context) *sqlc.Queries {
+	executor := postgres.GetQueryExecutor(ctx, r.pool)
+	return sqlc.New(executor) // executor реализует интерфейс sqlc.DBTX
 }
 
 func (r *Repository) UserByID(ctx context.Context, id int64) (models.User, error) {
-	user, err := r.q.UserByID(ctx, id)
+	q := r.queries(ctx)
+
+	user, err := q.UserByID(ctx, id)
 	if err != nil {
 		return models.User{}, err
 	}
+
 	return toDomainUser(user), nil
 }
 
 func (r *Repository) CreateUser(ctx context.Context, id int64, timezone string, rewardWeeklyBonus int32) (models.User, error) {
-	row, err := r.q.CreateUser(ctx, sqlc.CreateUserParams{
+	q := r.queries(ctx)
+
+	row, err := q.CreateUser(ctx, sqlc.CreateUserParams{
 		ID:                id,
 		Timezone:          pgtype.Text{String: timezone, Valid: true},
 		RewardWeeklyBonus: rewardWeeklyBonus,
@@ -39,6 +47,7 @@ func (r *Repository) CreateUser(ctx context.Context, id int64, timezone string, 
 	if err != nil {
 		return models.User{}, err
 	}
+
 	return models.User{
 		ID:                row.ID,
 		Timezone:          row.Timezone.String,
@@ -49,7 +58,9 @@ func (r *Repository) CreateUser(ctx context.Context, id int64, timezone string, 
 }
 
 func (r *Repository) UpdateUser(ctx context.Context, user models.User) error {
-	return r.q.UpdateUser(ctx, sqlc.UpdateUserParams{
+	q := r.queries(ctx)
+
+	return q.UpdateUser(ctx, sqlc.UpdateUserParams{
 		ID:                user.ID,
 		Timezone:          pgtype.Text{String: user.Timezone, Valid: true},
 		Balance:           pgtype.Int4{Int32: user.Balance, Valid: true},

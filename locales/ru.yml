@@ -27,16 +27,17 @@ unauthorized: Вы не авторизованы! Пропишите /start
 habits_menu_text: |-
   🏋️ Ваши привычки:
   
-  {{ if .Habits }}{{ range .Habits }}───────────────────────{{"\n"}}<b>{{ .Name }}</b>{{"\n"}}▸ Прогресс за неделю: {{ .WeaklyGoalDone }}/{{ .WeaklyGoal }}{{ if .WeaklyGoalCompleted }}✅{{ else }}❌{{ end }}{{"\n"}}▸ +{{ .RewardPerExecute }} 🪙 за выполнение{{"\n"}}───────────────────────{{"\n"}}{{ end }}За успешную неделю +{{ .RewardWeeklyBonus }} 🪙{{ else }}<i>- Отсутствуют</i>{{ end }}
-
+  {{ if .Habits }}{{ range .Habits }}───────────────────────{{"\n"}}<b>{{ .Name }}</b>{{"\n"}}▸ Прогресс за неделю: {{ .WeaklyGoalDone }}/{{ .WeaklyGoal }}{{ if .WeaklyGoalCompleted }} ✅{{ else }} ❌{{ end }}{{"\n"}}▸ +{{ .RewardPerExecute }} 🪙 за выполнение{{"\n"}}───────────────────────{{"\n"}}{{ end }}За успешную неделю +{{ .RewardWeeklyBonus }} 🪙{{ else }}<i>- Отсутствуют</i>{{ end }}
 input_habit_name: |-
   Введите название привычки
-
 input_habit_weakly_goal: |-
   Введите цель выполнения привычки на неделю
-
 input_habit_reward_per_execute: |-
   Введите награду за выполение привычки
-
 habit_created:
   Новая привычка создана! Вперёд к победе
+
+habit_complete_text: |-
+  Вперёд к победе
+habit_delete_text: |-
+  Корректировка под свои особенности - прямой путь к победе
