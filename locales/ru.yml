@@ -24,6 +24,15 @@ cross: ❌
 main_menu_text: Добро пожаловать! Желаю скорейшего выполнения целей
 unauthorized: Вы не авторизованы! Пропишите /start
 
+input_timezone: |-
+  Введите часовой пояс (например, Europe/Moscow)
+invalid_timezone: |-
+  Некорректный часовой пояс. Попробуйте снова
+input_reward_weekly_bonus: |-
+  Введите еженедельный бонус (положительное число)
+invalid_reward_weekly_bonus: |-
+  Бонус должен быть положительным числом
+
 habits_menu_text: |-
   🏋️ Ваши привычки:
   

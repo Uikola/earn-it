@@ -15,7 +15,7 @@ import (
 type habitRepository interface {
 	HabitsByUserID(ctx context.Context, userID int64) ([]models.Habit, error)
 	HabitByID(ctx context.Context, habitID int64) (models.Habit, error)
-	CreateHabit(ctx context.Context, userID int64, name string, weaklyGoal int32, rewardPerExecute int32) (models.Habit, error)
+	CreateHabit(ctx context.Context, userID int64, name string, weaklyGoal, rewardPerExecute int32) (models.Habit, error)
 	DeleteHabit(ctx context.Context, habitID int64) error
 
 	CreateHabitLog(ctx context.Context, habitID int64) error

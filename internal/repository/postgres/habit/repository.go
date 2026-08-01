@@ -53,7 +53,7 @@ func (r *Repository) HabitByID(ctx context.Context, habitID int64) (models.Habit
 	return toDomainHabit(habit), nil
 }
 
-func (r *Repository) CreateHabit(ctx context.Context, userID int64, name string, weaklyGoal int32, rewardPerExecute int32) (models.Habit, error) {
+func (r *Repository) CreateHabit(ctx context.Context, userID int64, name string, weaklyGoal, rewardPerExecute int32) (models.Habit, error) {
 	q := r.queries(ctx)
 
 	habit, err := q.CreateHabit(ctx, sqlc.CreateHabitParams{

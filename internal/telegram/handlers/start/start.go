@@ -1,12 +1,15 @@
-package handlers
+package start
 
 import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
 
 	"github.com/Uikola/earn-it/internal/models"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
 	"github.com/google/martian/log"
+	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
 )
@@ -17,17 +20,22 @@ type userRepository interface {
 	UpdateUser(ctx context.Context, user models.User) error
 }
 
-type StartHandler struct {
+type Handler struct {
 	layout *layout.Layout
+	input  *intele.InputManager
 
 	userRepository userRepository
 }
 
-func NewStartHandler(layout *layout.Layout, userRepository userRepository) *StartHandler {
-	return &StartHandler{layout: layout, userRepository: userRepository}
+func NewHandler(layout *layout.Layout, input *intele.InputManager, userRepository userRepository) *Handler {
+	return &Handler{
+		layout:         layout,
+		input:          input,
+		userRepository: userRepository,
+	}
 }
 
-func (h *StartHandler) Start(c tele.Context) error {
+func (h *Handler) Start(c tele.Context) error {
 	ctx := context.Background()
 
 	userID := c.Sender().ID
@@ -48,8 +56,37 @@ func (h *StartHandler) Start(c tele.Context) error {
 		)
 	}
 
-	// TODO: Сделать этап регистрации, где буду предлогать пользователю захардкоженные данные
-	_, err = h.userRepository.CreateUser(ctx, userID, "Europe/Moscow", 40)
+	steps := []helpers.InputStep{
+		{
+			Name:      "timezone",
+			PromptKey: "input_timezone",
+			Validator: validateTimezone,
+			ErrorKey:  "invalid_timezone",
+		},
+		{
+			Name:      "reward_weekly_bonus",
+			PromptKey: "input_reward_weekly_bonus",
+			Validator: validateNumber,
+			ErrorKey:  "invalid_reward_weekly_bonus",
+		},
+	}
+
+	results, err := helpers.CollectInput(c, h.input, h.layout, steps, nil, true)
+	if err != nil {
+		if errors.Is(err, helpers.ErrCanceled) {
+			return nil
+		}
+		log.Errorf("failed to collect input: %v", err)
+		return c.Send(
+			h.layout.Text(c, "technical_issues"),
+			h.layout.Markup(c, "mainMenuBack"),
+		)
+	}
+
+	timezone := results["timezone"]
+	rewardWeeklyBonus, _ := strconv.ParseInt(results["reward_weekly_bonus"], 10, 32)
+
+	_, err = h.userRepository.CreateUser(ctx, userID, timezone, int32(rewardWeeklyBonus))
 	if err != nil {
 		log.Errorf("failed to create user: %s", err)
 		return c.Send(
@@ -64,7 +101,7 @@ func (h *StartHandler) Start(c tele.Context) error {
 	)
 }
 
-func (h *StartHandler) MainMenu(c tele.Context) error {
+func (h *Handler) MainMenu(c tele.Context) error {
 	ctx := context.Background()
 
 	_, err := h.userRepository.UserByID(ctx, c.Sender().ID)
@@ -87,10 +124,4 @@ func (h *StartHandler) MainMenu(c tele.Context) error {
 		h.layout.Text(c, "unauthorized"),
 		h.layout.Markup(c, "core:hide"),
 	)
-}
-
-func (h *StartHandler) Clear(c tele.Context) error {
-	// TODO: Надо как-то оптимально хранить idшники всех сообщений пользовател, получать их и проходясь по списку удалять
-	// Пока смысла нет, сделаю позже нейронкой
-	return nil
 }

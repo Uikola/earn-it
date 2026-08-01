@@ -7,8 +7,8 @@ import (
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
-	"github.com/Uikola/earn-it/internal/telegram/handlers"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/start"
 	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
@@ -56,7 +56,7 @@ func (bot *Bot) Setup(
 	userRepository *user.Repository,
 	habitRepository *habit.Repository,
 ) {
-	startHandler := handlers.NewStartHandler(bot.Layout, userRepository)
+	startHandler := start.NewHandler(bot.Layout, bot.Input, userRepository)
 	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository)
 
 	bot.Use(bot.Layout.Middleware("ru"))

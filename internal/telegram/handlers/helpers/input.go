@@ -23,30 +23,51 @@ var ErrCanceled = errors.New("input canceled")
 
 // CollectInput собирает ответы пользователя пошагово.
 // Возвращает map[name]значение или ошибку, если прервано.
+// markup — опциональная клавиатура (nil = без кнопок).
+// firstStepSend — если true, первый шаг делает Send (новое сообщение), иначе Edit (редактирование существующего).
 func CollectInput(
 	c tele.Context,
 	inputManager *intele.InputManager,
 	layout *layout.Layout,
 	steps []InputStep,
+	markup *tele.ReplyMarkup,
+	firstStepSend bool,
 ) (map[string]string, error) {
 	ic := collector.New()
-	ic.Collect(c.Message()) // собираем начальное сообщение
+	ic.Collect(c.Message())
 
 	results := make(map[string]string, len(steps))
 	isFirst := true
 
 	for _, step := range steps {
-		markup := layout.Markup(c, "habitsMenuBack") // кнопка "Назад" (можно параметризовать)
+		var stepMarkup *tele.ReplyMarkup
+		if markup != nil {
+			stepMarkup = markup
+		}
 
-		// Отправляем запрос
 		if isFirst {
-			_ = c.Edit(layout.Text(c, step.PromptKey), markup)
+			if firstStepSend {
+				if stepMarkup != nil {
+					_ = c.Send(layout.Text(c, step.PromptKey), stepMarkup)
+				} else {
+					_ = c.Send(layout.Text(c, step.PromptKey))
+				}
+			} else {
+				if stepMarkup != nil {
+					_ = c.Edit(layout.Text(c, step.PromptKey), stepMarkup)
+				} else {
+					_ = c.Edit(layout.Text(c, step.PromptKey))
+				}
+			}
 		} else {
-			_ = ic.Send(c, layout.Text(c, step.PromptKey), markup)
+			if stepMarkup != nil {
+				_ = ic.Send(c, layout.Text(c, step.PromptKey), stepMarkup)
+			} else {
+				_ = ic.Send(c, layout.Text(c, step.PromptKey))
+			}
 		}
 		isFirst = false
 
-		// Цикл ожидания корректного ввода
 		for {
 			response, err := inputManager.Get(context.Background(), c.Sender().ID, 0, nil)
 			if response.Message != nil {
@@ -60,11 +81,14 @@ func CollectInput(
 
 			if err != nil {
 				log.Errorf("input error: %v", err)
-				_ = ic.Send(c, layout.Text(c, "technical_issues"), markup)
+				if stepMarkup != nil {
+					_ = ic.Send(c, layout.Text(c, "technical_issues"), stepMarkup)
+				} else {
+					_ = ic.Send(c, layout.Text(c, "technical_issues"))
+				}
 				continue
 			}
 
-			// Если пришёл callback – считаем, что пользователь отменил
 			if response.Callback != nil {
 				_ = ic.Clear(c, collector.ClearOptions{IgnoreErrors: true})
 				return nil, ErrCanceled
@@ -72,7 +96,11 @@ func CollectInput(
 
 			text := response.Message.Text
 			if !step.Validator(text) {
-				_ = ic.Send(c, layout.Text(c, step.ErrorKey), markup)
+				if stepMarkup != nil {
+					_ = ic.Send(c, layout.Text(c, step.ErrorKey), stepMarkup)
+				} else {
+					_ = ic.Send(c, layout.Text(c, step.ErrorKey))
+				}
 				continue
 			}
 

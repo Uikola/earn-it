@@ -36,7 +36,7 @@ func (h *Handler) NewHabit(c tele.Context) error {
 		},
 	}
 
-	results, err := helpers.CollectInput(c, h.input, h.layout, steps)
+	results, err := helpers.CollectInput(c, h.input, h.layout, steps, h.layout.Markup(c, "habitsMenuBack"), false)
 	if err != nil {
 		if errors.Is(err, helpers.ErrCanceled) {
 			return nil
