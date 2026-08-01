@@ -1,0 +1,92 @@
+settings:
+  parse_mode: html
+  token_env: BOT_TOKEN
+  long_poller:
+    Timeout: 10
+
+commands:
+  /start: Перезапустить бота
+
+buttons:
+  core:hide:
+    unique: coreHide
+    text: '{{ text `hide` }}'
+
+  core:cancel:
+    unique: coreCancel
+    text: '{{ text `cancel` }}'
+
+  core:back:
+    unique: coreBack
+    text: '{{ text `back` }}'
+
+  core:pageCounter:
+    unique: corePageCounter
+    text: '📃 {{.Page}}/{{.PagesCount}}'
+
+  mainMenuBack:
+    unique: mainMenuBack
+    text: '{{ text `back` }}'
+
+  tasksMenu:
+    unique: tasksMenu
+    text: '📋 Задачи'
+
+  shopMenu:
+    unique: shopMenu
+    text: '🛒 Магазин'
+
+  statsMenu:
+    unique: statsMenu
+    text: '📊 Статистика'
+
+  habitsMenu:
+    unique: habitsMenu
+    text: '🏆 Привычки'
+  habitsMenuBack:
+    unique: habitsMenuBack
+    text: '{{ text `back` }}'
+  habits:new:
+    unique: newHabit
+    text: '➕ Новая привычка'
+  habits:complete:
+    unique: completeHabit
+    text: '☑️ Выполнить'
+  habits:complete:habit:
+    unique: habitToComplete
+    callback_data: '{{ .ID }}'
+    text: '{{ .Name }} {{ .WeaklyGoalDone }}/{{ .WeaklyGoal }}{{ if .WeaklyGoalCompleted }} ✅{{ else }} ❌{{ end }}'
+  habits:delete:
+    unique: deleteHabit
+    text: '🗑 Удалить'
+  habits:delete:habit:
+    unique: habitToDelete
+    callback_data: '{{ .ID }}'
+    text: '{{ .Name }}'
+
+  walletMenu:
+    unique: walletMenu
+    text: '💰 Кошёлек'
+
+  settingsMenu:
+    unique: settingsMenu
+    text: '⚙️ Настройки'
+
+markups:
+  core:hide:
+    - [ core:hide ]
+
+  mainMenu:
+    - [ tasksMenu, habitsMenu ]
+    - [ shopMenu, walletMenu ]
+    - [ statsMenu, settingsMenu ]
+  mainMenuBack:
+    - [ mainMenuBack ]
+
+  habitsMenu:
+    - [ habits:new ]
+    - [ habits:complete ]
+    - [ habits:delete ]
+    - [ mainMenuBack ]
+  habitsMenuBack:
+    - [ habitsMenuBack ]

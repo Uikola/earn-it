@@ -15,6 +15,7 @@ import (
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -26,6 +27,11 @@ func main() {
 }
 
 func run(ctx context.Context) error {
+	err := godotenv.Load()
+	if err != nil {
+		return fmt.Errorf("error loading .env file: %w", err)
+	}
+
 	db, err := postgres.InitDB(ctx, "postgres://postgres:password@localhost:5433/earnit?sslmode=disable")
 	if err != nil {
 		return fmt.Errorf("failed to init db: %w", err)
