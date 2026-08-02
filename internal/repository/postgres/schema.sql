@@ -1,5 +1,3 @@
--- +goose Up
-SELECT 'up SQL query';
 CREATE TABLE IF NOT EXISTS users
 (
     id                  BIGINT PRIMARY KEY,
@@ -85,9 +83,12 @@ CREATE TABLE transactions
     created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- +goose Down
-CREATE INDEX idx_tasks_user_date ON tasks (user_id, scheduled_date);
-CREATE INDEX idx_tasks_user_status ON tasks (user_id, status);
+-- Индексы для оптимизации запросов
+CREATE INDEX idx_projects_user ON projects (user_id);
+CREATE INDEX idx_tasks_user_status_date ON tasks (user_id, status, scheduled_date, created_at);
+CREATE INDEX idx_tasks_project ON tasks (project_id, scheduled_date, created_at);
+CREATE INDEX idx_habits_user ON habits (user_id, created_at);
 CREATE INDEX idx_habit_logs_habit_executed ON habit_logs (habit_id, executed_at);
-CREATE INDEX idx_transactions_user_created ON transactions (user_id, created_at DESC);
 CREATE INDEX idx_shop_items_user_purchased ON shop_items (user_id, is_purchased);
+CREATE INDEX idx_purchases_user ON purchases (user_id, purchased_at DESC);
+CREATE INDEX idx_transactions_user_created ON transactions (user_id, created_at DESC);
