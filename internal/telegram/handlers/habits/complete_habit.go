@@ -47,15 +47,15 @@ func (h *Handler) CompleteHabits(c tele.Context) error {
 		rows = append(rows, markup.Row(*h.layout.Button(c, "habits:complete:habit", struct {
 			ID                  int64
 			Name                string
-			WeaklyGoalDone      int32
-			WeaklyGoal          int32
-			WeaklyGoalCompleted bool
+			WeeklyGoalDone      int32
+			WeeklyGoal          int32
+			WeeklyGoalCompleted bool
 		}{
 			ID:                  habit.ID,
 			Name:                habit.Name,
-			WeaklyGoalDone:      int32(len(habitLogsForWeek)),
-			WeaklyGoal:          habit.WeaklyGoal,
-			WeaklyGoalCompleted: int32(len(habitLogsForWeek)) >= habit.WeaklyGoal,
+			WeeklyGoalDone:      int32(len(habitLogsForWeek)),
+			WeeklyGoal:          habit.WeeklyGoal,
+			WeeklyGoalCompleted: int32(len(habitLogsForWeek)) >= habit.WeeklyGoal,
 		})))
 	}
 

@@ -61,7 +61,7 @@ func (s *Scheduler) processUserWeeklyBonus(ctx context.Context, userID int64, ti
 			return
 		}
 
-		if int32(len(logs)) < habit.WeaklyGoal {
+		if int32(len(logs)) < habit.WeeklyGoal {
 			return
 		}
 	}

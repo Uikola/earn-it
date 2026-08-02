@@ -26,10 +26,10 @@ func (h *Handler) NewHabit(c tele.Context) error {
 		},
 
 		{
-			Name:      "habit_weakly_goal",
-			PromptKey: "input_habit_weakly_goal",
+			Name:      "habit_weekly_goal",
+			PromptKey: "input_habit_weekly_goal",
 			Validator: validateNumber,
-			ErrorKey:  "invalid_habit_weakly_goal",
+			ErrorKey:  "invalid_habit_weekly_goal",
 		},
 		{
 			Name:      "habit_reward_per_execute",
@@ -50,19 +50,19 @@ func (h *Handler) NewHabit(c tele.Context) error {
 
 	var (
 		habitName             string
-		habitWeaklyGoal       int32
+		habitWeeklyGoal       int32
 		habitRewardForExecute int32
 	)
 
 	habitName = results["habit_name"]
 
-	habitWeaklyGoalTemp, _ := strconv.ParseInt(results["habit_weakly_goal"], 10, 32)
-	habitWeaklyGoal = int32(habitWeaklyGoalTemp)
+	habitWeeklyGoalTemp, _ := strconv.ParseInt(results["habit_weekly_goal"], 10, 32)
+	habitWeeklyGoal = int32(habitWeeklyGoalTemp)
 
 	habitRewardForExecuteTemp, _ := strconv.ParseInt(results["habit_reward_per_execute"], 10, 32)
 	habitRewardForExecute = int32(habitRewardForExecuteTemp)
 
-	_, err = h.habitsRepository.CreateHabit(ctx, userID, habitName, habitWeaklyGoal, habitRewardForExecute)
+	_, err = h.habitsRepository.CreateHabit(ctx, userID, habitName, habitWeeklyGoal, habitRewardForExecute)
 	if err != nil {
 		log.Errorf("failed to create habit: %v", err)
 		return c.Send(

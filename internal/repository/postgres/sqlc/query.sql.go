@@ -125,6 +125,41 @@ func (q *Queries) CreateShopItem(ctx context.Context, arg CreateShopItemParams) 
 	return i, err
 }
 
+const createTask = `-- name: CreateTask :one
+INSERT INTO tasks (user_id, title, scheduled_date, reward_value)
+VALUES ($1, $2, $3, $4)
+RETURNING id, user_id, project_id, title, scheduled_date, reward_value, status, completed_at, created_at
+`
+
+type CreateTaskParams struct {
+	UserID        int64
+	Title         string
+	ScheduledDate pgtype.Date
+	RewardValue   int32
+}
+
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
+	row := q.db.QueryRow(ctx, createTask,
+		arg.UserID,
+		arg.Title,
+		arg.ScheduledDate,
+		arg.RewardValue,
+	)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ProjectID,
+		&i.Title,
+		&i.ScheduledDate,
+		&i.RewardValue,
+		&i.Status,
+		&i.CompletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createTransaction = `-- name: CreateTransaction :one
 INSERT INTO transactions (user_id, amount, source, source_id)
 VALUES ($1, $2, $3, $4)
@@ -450,6 +485,24 @@ func (q *Queries) PurchasesByUserID(ctx context.Context, userID int64) ([]Purcha
 	return items, nil
 }
 
+const rescheduleExpiredTasks = `-- name: RescheduleExpiredTasks :exec
+UPDATE tasks
+SET scheduled_date = $2
+WHERE user_id = $1 
+  AND scheduled_date < $2 
+  AND status = 'pending'
+`
+
+type RescheduleExpiredTasksParams struct {
+	UserID        int64
+	ScheduledDate pgtype.Date
+}
+
+func (q *Queries) RescheduleExpiredTasks(ctx context.Context, arg RescheduleExpiredTasksParams) error {
+	_, err := q.db.Exec(ctx, rescheduleExpiredTasks, arg.UserID, arg.ScheduledDate)
+	return err
+}
+
 const shopItemByID = `-- name: ShopItemByID :one
 SELECT id, user_id, name, price, is_purchased
 FROM shop_items
@@ -529,6 +582,52 @@ func (q *Queries) TaskByID(ctx context.Context, id int64) (Task, error) {
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const tasksByUserAndDateRange = `-- name: TasksByUserAndDateRange :many
+SELECT id, user_id, project_id, title, scheduled_date, reward_value, status, completed_at, created_at
+FROM tasks
+WHERE user_id = $1 
+  AND scheduled_date >= $2 
+  AND scheduled_date < $3
+  AND status = 'pending'
+ORDER BY scheduled_date, created_at
+`
+
+type TasksByUserAndDateRangeParams struct {
+	UserID          int64
+	ScheduledDate   pgtype.Date
+	ScheduledDate_2 pgtype.Date
+}
+
+func (q *Queries) TasksByUserAndDateRange(ctx context.Context, arg TasksByUserAndDateRangeParams) ([]Task, error) {
+	rows, err := q.db.Query(ctx, tasksByUserAndDateRange, arg.UserID, arg.ScheduledDate, arg.ScheduledDate_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.ProjectID,
+			&i.Title,
+			&i.ScheduledDate,
+			&i.RewardValue,
+			&i.Status,
+			&i.CompletedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const tasksByUserAndStatus = `-- name: TasksByUserAndStatus :many

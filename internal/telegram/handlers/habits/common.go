@@ -16,7 +16,7 @@ import (
 type habitRepository interface {
 	HabitsByUserID(ctx context.Context, userID int64) ([]models.Habit, error)
 	HabitByID(ctx context.Context, habitID int64) (models.Habit, error)
-	CreateHabit(ctx context.Context, userID int64, name string, weaklyGoal, rewardPerExecute int32) (models.Habit, error)
+	CreateHabit(ctx context.Context, userID int64, name string, weeklyGoal, rewardPerExecute int32) (models.Habit, error)
 	DeleteHabit(ctx context.Context, habitID int64) error
 
 	CreateHabitLog(ctx context.Context, habitID int64) error
@@ -56,9 +56,9 @@ func NewHandler(
 
 type habitToPrint struct {
 	Name                string
-	WeaklyGoalDone      int32
-	WeaklyGoal          int32
-	WeaklyGoalCompleted bool
+	WeeklyGoalDone      int32
+	WeeklyGoal          int32
+	WeeklyGoalCompleted bool
 	RewardPerExecute    int32
 }
 
@@ -137,9 +137,9 @@ func (h *Handler) habitsToPrint(ctx context.Context, c tele.Context, weekStart t
 
 		habitsToPrint = append(habitsToPrint, habitToPrint{
 			Name:                habit.Name,
-			WeaklyGoalDone:      int32(len(habitLogsForWeek)),
-			WeaklyGoal:          habit.WeaklyGoal,
-			WeaklyGoalCompleted: int32(len(habitLogsForWeek)) >= habit.WeaklyGoal,
+			WeeklyGoalDone:      int32(len(habitLogsForWeek)),
+			WeeklyGoal:          habit.WeeklyGoal,
+			WeeklyGoalCompleted: int32(len(habitLogsForWeek)) >= habit.WeeklyGoal,
 			RewardPerExecute:    habit.RewardPerExecute,
 		})
 	}

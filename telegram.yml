@@ -31,6 +31,28 @@ buttons:
   tasksMenu:
     unique: tasksMenu
     text: '📋 Задачи'
+  tasksMenuBack:
+    unique: tasksMenuBack
+    text: '{{ text `back` }}'
+  tasks:today:
+    unique: tasksToday
+    text: '📋 Сегодня'
+  tasks:tomorrow:
+    unique: tasksTomorrow
+    text: '📅 На завтра'
+  tasks:later:
+    unique: tasksLater
+    text: '📆 Позже'
+  tasks:new:
+    unique: newTask
+    text: '➕ Новая задача'
+  tasks:complete:
+    unique: completeTask
+    text: '✅ Выполнить задачу'
+  tasks:complete:task:
+    unique: taskToComplete
+    callback_data: '{{ .ID }}'
+    text: '{{ .Title }}'
 
   shopMenu:
     unique: shopMenu
@@ -55,7 +77,7 @@ buttons:
   habits:complete:habit:
     unique: habitToComplete
     callback_data: '{{ .ID }}'
-    text: '{{ .Name }} {{ .WeaklyGoalDone }}/{{ .WeaklyGoal }}{{ if .WeaklyGoalCompleted }} ✅{{ else }} ❌{{ end }}'
+    text: '{{ .Name }} {{ .WeeklyGoalDone }}/{{ .WeeklyGoal }}{{ if .WeeklyGoalCompleted }} ✅{{ else }} ❌{{ end }}'
   habits:delete:
     unique: deleteHabit
     text: '🗑 Удалить'
@@ -90,3 +112,21 @@ markups:
     - [ mainMenuBack ]
   habitsMenuBack:
     - [ habitsMenuBack ]
+
+  tasksMenuToday:
+    - [ tasks:complete ]
+    - [ tasks:new ]
+    - [ tasks:tomorrow, tasks:later ]
+    - [ mainMenuBack ]
+  tasksMenuTomorrow:
+    - [ tasks:complete ]
+    - [ tasks:new ]
+    - [ tasks:today, tasks:later ]
+    - [ mainMenuBack ]
+  tasksMenuLater:
+    - [ tasks:complete ]
+    - [ tasks:new ]
+    - [ tasks:today, tasks:tomorrow ]
+    - [ mainMenuBack ]
+  tasksMenuBack:
+    - [ tasksMenuBack ]

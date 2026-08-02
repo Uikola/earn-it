@@ -10,10 +10,12 @@ import (
 
 	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
+	"github.com/Uikola/earn-it/internal/repository/postgres/task"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/start"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/tasks"
 )
 
 type Bot struct {
@@ -56,9 +58,11 @@ func (bot *Bot) Setup(
 	transactor postgres.Transactor,
 	userRepository *user.Repository,
 	habitRepository *habit.Repository,
+	taskRepository *task.Repository,
 ) {
 	startHandler := start.NewHandler(bot.Layout, bot.Input, userRepository)
 	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository)
+	tasksHandler := tasks.NewHandler(bot.Layout, bot.Input, transactor, taskRepository, userRepository)
 
 	bot.Use(bot.Layout.Middleware("ru"))
 	bot.Use(middleware.AutoRespond())
@@ -71,8 +75,6 @@ func (bot *Bot) Setup(
 	bot.Handle(bot.Layout.Callback("core:cancel"), hide)
 	bot.Handle(bot.Layout.Callback("core:back"), hide)
 
-	// Setup handlers
-	// Start
 	bot.Handle("/start", startHandler.Start)
 	bot.Handle(bot.Layout.Callback("mainMenuBack"), startHandler.MainMenu)
 
@@ -83,6 +85,15 @@ func (bot *Bot) Setup(
 	bot.Handle(bot.Layout.Callback("habits:complete:habit"), habitsHandler.CompleteHabit)
 	bot.Handle(bot.Layout.Callback("habits:delete"), habitsHandler.DeleteHabits)
 	bot.Handle(bot.Layout.Callback("habits:delete:habit"), habitsHandler.DeleteHabit)
+
+	bot.Handle(bot.Layout.Callback("tasksMenu"), tasksHandler.Tasks)
+	bot.Handle(bot.Layout.Callback("tasksMenuBack"), tasksHandler.Tasks)
+	bot.Handle(bot.Layout.Callback("tasks:today"), tasksHandler.Today)
+	bot.Handle(bot.Layout.Callback("tasks:tomorrow"), tasksHandler.Tomorrow)
+	bot.Handle(bot.Layout.Callback("tasks:later"), tasksHandler.Later)
+	bot.Handle(bot.Layout.Callback("tasks:new"), tasksHandler.NewTask)
+	bot.Handle(bot.Layout.Callback("tasks:complete"), tasksHandler.CompleteTasks)
+	bot.Handle(bot.Layout.Callback("tasks:complete:task"), tasksHandler.CompleteTask)
 }
 
 // ResetInputOnBack middleware clears the input state when the back button is pressed.

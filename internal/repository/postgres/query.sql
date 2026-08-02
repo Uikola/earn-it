@@ -84,6 +84,27 @@ WHERE id = $1;
 DELETE FROM tasks
 WHERE id = $1;
 
+-- name: CreateTask :one
+INSERT INTO tasks (user_id, title, scheduled_date, reward_value)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+
+-- name: TasksByUserAndDateRange :many
+SELECT *
+FROM tasks
+WHERE user_id = $1 
+  AND scheduled_date >= $2 
+  AND scheduled_date < $3
+  AND status = 'pending'
+ORDER BY scheduled_date, created_at;
+
+-- name: RescheduleExpiredTasks :exec
+UPDATE tasks
+SET scheduled_date = $2
+WHERE user_id = $1 
+  AND scheduled_date < $2 
+  AND status = 'pending';
+
 -- name: HabitByID :one
 SELECT *
 FROM habits
