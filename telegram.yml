@@ -64,6 +64,25 @@ buttons:
   shopMenu:
     unique: shopMenu
     text: '🛒 Магазин'
+  shopMenuBack:
+    unique: shopMenuBack
+    text: '{{ text `back` }}'
+  shop:buy:
+    unique: shopBuy
+    text: '🛒 Купить'
+  shop:buy:item:
+    unique: shopBuyItem
+    callback_data: '{{ .ID }}'
+    text: '{{ .Name }} — {{ .Price }} 🪙'
+  shop:purchased:
+    unique: shopPurchased
+    text: '📦 Купленные'
+  shop:new:
+    unique: shopNew
+    text: '➕ Добавить желание'
+  shopPurchasedBack:
+    unique: shopPurchasedBack
+    text: '{{ text `back` }}'
 
   statsMenu:
     unique: statsMenu
@@ -147,3 +166,12 @@ markups:
   walletMenu:
     - [ wallet:history ]
     - [ mainMenuBack ]
+
+  shopMenu:
+    - [ shop:buy ]
+    - [ shop:new, shop:purchased ]
+    - [ mainMenuBack ]
+  shopMenuBack:
+    - [ shopMenuBack ]
+  shopPurchasedBack:
+    - [ shopPurchasedBack ]

@@ -103,3 +103,28 @@ wallet_menu_text: |-
   {{ range .Transactions }}{{ .FormattedAmount }} 🪙 — {{ .SourceName }} ({{ .FormattedDate }})
   {{ end }}{{ else }}
   Нет транзакций{{ end }}
+
+shop_menu_text: |-
+  🛒 Витрина желаний:
+  
+  {{ if .Items }}{{ range .Items }}{{ .Number }}. {{ .Name }} — {{ .Price }} 🪙{{"\n"}}{{ end }}
+  У вас: {{ .Balance }} 🪙{{ else }}<i>- Пусто</i>{{ end }}
+shop_buy_text: |-
+  Выберите товар для покупки
+shop_purchased_text: |-
+  📦 Купленные товары:
+  
+  {{ if .Items }}{{ range .Items }}{{ .Number }}. {{ .Name }} — {{ .Price }} 🪙{{"\n"}}{{ end }}{{ else }}<i>- Нет купленных товаров</i>{{ end }}
+shop_empty: |-
+  🛒 Витрина пуста
+shop_insufficient_funds: |-
+  ❌ Недостаточно монет!
+input_shop_item_name: |-
+  Введите название награды
+invalid_shop_item_name: |-
+  Название не должно быть пустым
+input_shop_item_price: |-
+  Введите цену в монетах
+invalid_shop_item_price: |-
+  Цена должна быть положительным числом
+

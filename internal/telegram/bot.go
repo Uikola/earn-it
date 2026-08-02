@@ -10,11 +10,13 @@ import (
 
 	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
+	shoprepo "github.com/Uikola/earn-it/internal/repository/postgres/shop"
 	"github.com/Uikola/earn-it/internal/repository/postgres/task"
 	"github.com/Uikola/earn-it/internal/repository/postgres/transaction"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/shop"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/start"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/tasks"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/wallet"
@@ -62,11 +64,13 @@ func (bot *Bot) Setup(
 	habitRepository *habit.Repository,
 	taskRepository *task.Repository,
 	transactionRepository *transaction.Repository,
+	shopRepository *shoprepo.Repository,
 ) {
 	startHandler := start.NewHandler(bot.Layout, bot.Input, userRepository)
 	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository, transactionRepository)
 	tasksHandler := tasks.NewHandler(bot.Layout, bot.Input, transactor, taskRepository, userRepository, transactionRepository)
 	walletHandler := wallet.NewHandler(bot.Layout, userRepository, transactionRepository)
+	shopHandler := shop.NewHandler(bot.Layout, bot.Input, transactor, shopRepository, userRepository, transactionRepository)
 
 	bot.Use(bot.Layout.Middleware("ru"))
 	bot.Use(middleware.AutoRespond())
@@ -103,6 +107,14 @@ func (bot *Bot) Setup(
 
 	bot.Handle(bot.Layout.Callback("walletMenu"), walletHandler.Wallet)
 	bot.Handle(bot.Layout.Callback("wallet:history"), walletHandler.Wallet)
+
+	bot.Handle(bot.Layout.Callback("shopMenu"), shopHandler.Shop)
+	bot.Handle(bot.Layout.Callback("shopMenuBack"), shopHandler.Shop)
+	bot.Handle(bot.Layout.Callback("shop:buy"), shopHandler.BuyItems)
+	bot.Handle(bot.Layout.Callback("shop:buy:item"), shopHandler.BuyItem)
+	bot.Handle(bot.Layout.Callback("shop:purchased"), shopHandler.PurchasedItems)
+	bot.Handle(bot.Layout.Callback("shopPurchasedBack"), shopHandler.Shop)
+	bot.Handle(bot.Layout.Callback("shop:new"), shopHandler.NewShopItem)
 }
 
 // ResetInputOnBack middleware clears the input state when the back button is pressed.
