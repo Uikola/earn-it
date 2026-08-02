@@ -60,6 +60,25 @@ type habitToPrint struct {
 	WeeklyGoal          int32
 	WeeklyGoalCompleted bool
 	RewardPerExecute    int32
+	ProgressBar         string
+}
+
+func progressBar(done, goal int32) string {
+	if goal <= 0 {
+		return ""
+	}
+	filled := done
+	if filled > goal {
+		filled = goal
+	}
+	runes := make([]rune, 0, goal)
+	for i := int32(0); i < filled; i++ {
+		runes = append(runes, '🟩')
+	}
+	for i := filled; i < goal; i++ {
+		runes = append(runes, '⬜')
+	}
+	return string(runes)
 }
 
 func (h *Handler) userByIDWithProcessedError(ctx context.Context, c tele.Context, userID int64, action string) *models.User {
@@ -141,6 +160,7 @@ func (h *Handler) habitsToPrint(ctx context.Context, c tele.Context, weekStart t
 			WeeklyGoal:          habit.WeeklyGoal,
 			WeeklyGoalCompleted: int32(len(habitLogsForWeek)) >= habit.WeeklyGoal,
 			RewardPerExecute:    habit.RewardPerExecute,
+			ProgressBar:         progressBar(int32(len(habitLogsForWeek)), habit.WeeklyGoal),
 		})
 	}
 

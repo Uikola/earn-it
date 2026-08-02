@@ -36,7 +36,7 @@ invalid_reward_weekly_bonus: |-
 habits_menu_text: |-
   🏋️ Ваши привычки:
   
-  {{ if .Habits }}{{ range .Habits }}───────────────────────{{"\n"}}<b>{{ .Name }}</b>{{"\n"}}▸ Прогресс за неделю: {{ .WeeklyGoalDone }}/{{ .WeeklyGoal }}{{ if .WeeklyGoalCompleted }} ✅{{ else }} ❌{{ end }}{{"\n"}}▸ +{{ .RewardPerExecute }} 🪙 за выполнение{{"\n"}}───────────────────────{{"\n"}}{{ end }}За успешную неделю +{{ .RewardWeeklyBonus }} 🪙{{ else }}<i>- Отсутствуют</i>{{ end }}
+  {{ if .Habits }}{{ range .Habits }}───────────────────────{{"\n"}}<b>{{ .Name }}</b>{{"\n"}}▸ Прогресс за неделю: {{ .ProgressBar }} {{ .WeeklyGoalDone }}/{{ .WeeklyGoal }}{{ if .WeeklyGoalCompleted }} ✅{{ else }} ❌{{ end }}{{"\n"}}▸ +{{ .RewardPerExecute }} 🪙 за выполнение{{"\n"}}───────────────────────{{"\n"}}{{ end }}За успешную неделю +{{ .RewardWeeklyBonus }} 🪙{{ else }}<i>- Отсутствуют</i>{{ end }}
 input_habit_name: |-
   Введите название привычки
 invalid_habit_name: |-
