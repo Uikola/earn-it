@@ -128,3 +128,6 @@ input_shop_item_price: |-
 invalid_shop_item_price: |-
   Цена должна быть положительным числом
 
+feature_in_development: |-
+  🚧 Этот функционал находится в разработке
+

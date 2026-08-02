@@ -115,6 +115,19 @@ func (bot *Bot) Setup(
 	bot.Handle(bot.Layout.Callback("shop:purchased"), shopHandler.PurchasedItems)
 	bot.Handle(bot.Layout.Callback("shopPurchasedBack"), shopHandler.Shop)
 	bot.Handle(bot.Layout.Callback("shop:new"), shopHandler.NewShopItem)
+
+	bot.Handle(bot.Layout.Callback("statsMenu"), func(c tele.Context) error {
+		return c.Respond(&tele.CallbackResponse{
+			Text:      bot.Layout.Text(c, "feature_in_development"),
+			ShowAlert: true,
+		})
+	})
+	bot.Handle(bot.Layout.Callback("settingsMenu"), func(c tele.Context) error {
+		return c.Respond(&tele.CallbackResponse{
+			Text:      bot.Layout.Text(c, "feature_in_development"),
+			ShowAlert: true,
+		})
+	})
 }
 
 // ResetInputOnBack middleware clears the input state when the back button is pressed.
