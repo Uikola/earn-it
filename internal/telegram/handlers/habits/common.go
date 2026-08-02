@@ -19,7 +19,7 @@ type habitRepository interface {
 	CreateHabit(ctx context.Context, userID int64, name string, weeklyGoal, rewardPerExecute int32) (models.Habit, error)
 	DeleteHabit(ctx context.Context, habitID int64) error
 
-	CreateHabitLog(ctx context.Context, habitID int64) error
+	CreateHabitLog(ctx context.Context, habitID int64) (models.HabitLog, error)
 	HabitLogsForWeek(ctx context.Context, habitID int64, weekStart time.Time) ([]models.HabitLog, error)
 }
 
@@ -28,13 +28,18 @@ type userRepository interface {
 	UpdateUser(ctx context.Context, user models.User) error
 }
 
+type transactionRepository interface {
+	CreateTransaction(ctx context.Context, userID int64, amount int32, source string, sourceID int64) (models.Transaction, error)
+}
+
 type Handler struct {
 	layout *layout.Layout
 	input  *intele.InputManager
 
-	transactor       postgres.Transactor
-	habitsRepository habitRepository
-	userRepository   userRepository
+	transactor            postgres.Transactor
+	habitsRepository      habitRepository
+	userRepository        userRepository
+	transactionRepository transactionRepository
 }
 
 func NewHandler(
@@ -43,14 +48,16 @@ func NewHandler(
 	transactor postgres.Transactor,
 	habitsRepository habitRepository,
 	userRepository userRepository,
+	transactionRepository transactionRepository,
 ) *Handler {
 	return &Handler{
 		layout: layout,
 		input:  input,
 
-		transactor:       transactor,
-		habitsRepository: habitsRepository,
-		userRepository:   userRepository,
+		transactor:            transactor,
+		habitsRepository:      habitsRepository,
+		userRepository:        userRepository,
+		transactionRepository: transactionRepository,
 	}
 }
 

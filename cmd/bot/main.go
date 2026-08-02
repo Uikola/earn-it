@@ -15,6 +15,7 @@ import (
 	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
 	"github.com/Uikola/earn-it/internal/repository/postgres/task"
+	"github.com/Uikola/earn-it/internal/repository/postgres/transaction"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/scheduler"
@@ -54,6 +55,7 @@ func run(ctx context.Context) error {
 	userRepository := user.NewRepository(db)
 	habitRepository := habit.NewRepository(db)
 	taskRepository := task.NewRepository(db)
+	transactionRepository := transaction.NewRepository(db)
 
 	bot, err := telegram.NewBot(stateRepository)
 	if err != nil {
@@ -62,11 +64,11 @@ func run(ctx context.Context) error {
 
 	notif := notifier.New(bot.Bot, bot.Layout)
 
-	sched := scheduler.New(transactor, userRepository, habitRepository, notif)
+	sched := scheduler.New(transactor, userRepository, habitRepository, transactionRepository, notif)
 	sched.Start()
 	defer sched.Stop()
 
-	bot.Setup(transactor, userRepository, habitRepository, taskRepository)
+	bot.Setup(transactor, userRepository, habitRepository, taskRepository, transactionRepository)
 
 	errChan := make(chan error, 1)
 	go func() {

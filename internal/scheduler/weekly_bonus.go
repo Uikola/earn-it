@@ -67,7 +67,12 @@ func (s *Scheduler) processUserWeeklyBonus(ctx context.Context, userID int64, ti
 	}
 
 	err = s.transactor.WithinTransaction(ctx, func(txctx context.Context) error {
-		if err := s.habitRepository.CreateWeeklyBonus(txctx, userID, weekStart); err != nil {
+		weeklyBonus, err := s.habitRepository.CreateWeeklyBonus(txctx, userID, weekStart)
+		if err != nil {
+			return err
+		}
+
+		if _, err := s.transactionRepository.CreateTransaction(txctx, userID, rewardWeeklyBonus, "habit_bonus", weeklyBonus.ID); err != nil {
 			return err
 		}
 

@@ -21,7 +21,11 @@ type habitRepository interface {
 	HabitsByUserID(ctx context.Context, userID int64) ([]models.Habit, error)
 	HabitLogsForWeek(ctx context.Context, habitID int64, weekStart time.Time) ([]models.HabitLog, error)
 	WeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) (models.WeeklyBonus, error)
-	CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) error
+	CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) (models.WeeklyBonus, error)
+}
+
+type transactionRepository interface {
+	CreateTransaction(ctx context.Context, userID int64, amount int32, source string, sourceID int64) (models.Transaction, error)
 }
 
 type notifier interface {
@@ -29,25 +33,28 @@ type notifier interface {
 }
 
 type Scheduler struct {
-	cron            *cron.Cron
-	transactor      postgres.Transactor
-	userRepository  userRepository
-	habitRepository habitRepository
-	notifier        notifier
+	cron                  *cron.Cron
+	transactor            postgres.Transactor
+	userRepository        userRepository
+	habitRepository       habitRepository
+	transactionRepository transactionRepository
+	notifier              notifier
 }
 
 func New(
 	transactor postgres.Transactor,
 	userRepository userRepository,
 	habitRepository habitRepository,
+	transactionRepository transactionRepository,
 	notifier notifier,
 ) *Scheduler {
 	return &Scheduler{
-		cron:            cron.New(),
-		transactor:      transactor,
-		userRepository:  userRepository,
-		habitRepository: habitRepository,
-		notifier:        notifier,
+		cron:                  cron.New(),
+		transactor:            transactor,
+		userRepository:        userRepository,
+		habitRepository:       habitRepository,
+		transactionRepository: transactionRepository,
+		notifier:              notifier,
 	}
 }
 

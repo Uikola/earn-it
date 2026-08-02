@@ -11,6 +11,7 @@ import (
 	"github.com/Uikola/earn-it/internal/repository/postgres"
 	"github.com/Uikola/earn-it/internal/repository/postgres/habit"
 	"github.com/Uikola/earn-it/internal/repository/postgres/task"
+	"github.com/Uikola/earn-it/internal/repository/postgres/transaction"
 	"github.com/Uikola/earn-it/internal/repository/postgres/user"
 	"github.com/Uikola/earn-it/internal/repository/redis"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
@@ -59,10 +60,11 @@ func (bot *Bot) Setup(
 	userRepository *user.Repository,
 	habitRepository *habit.Repository,
 	taskRepository *task.Repository,
+	transactionRepository *transaction.Repository,
 ) {
 	startHandler := start.NewHandler(bot.Layout, bot.Input, userRepository)
-	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository)
-	tasksHandler := tasks.NewHandler(bot.Layout, bot.Input, transactor, taskRepository, userRepository)
+	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository, transactionRepository)
+	tasksHandler := tasks.NewHandler(bot.Layout, bot.Input, transactor, taskRepository, userRepository, transactionRepository)
 
 	bot.Use(bot.Layout.Middleware("ru"))
 	bot.Use(middleware.AutoRespond())

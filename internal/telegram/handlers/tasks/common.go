@@ -23,17 +23,22 @@ type taskRepository interface {
 	DeleteTask(ctx context.Context, taskID int64) error
 }
 
+type transactionRepository interface {
+	CreateTransaction(ctx context.Context, userID int64, amount int32, source string, sourceID int64) (models.Transaction, error)
+}
+
 type userRepository interface {
 	UserByID(ctx context.Context, id int64) (models.User, error)
 	UpdateUser(ctx context.Context, user models.User) error
 }
 
 type Handler struct {
-	layout         *layout.Layout
-	input          *intele.InputManager
-	transactor     postgres.Transactor
-	taskRepository taskRepository
-	userRepository userRepository
+	layout                *layout.Layout
+	input                 *intele.InputManager
+	transactor            postgres.Transactor
+	taskRepository        taskRepository
+	userRepository        userRepository
+	transactionRepository transactionRepository
 }
 
 func NewHandler(
@@ -42,13 +47,15 @@ func NewHandler(
 	transactor postgres.Transactor,
 	taskRepository taskRepository,
 	userRepository userRepository,
+	transactionRepository transactionRepository,
 ) *Handler {
 	return &Handler{
-		layout:         layout,
-		input:          input,
-		transactor:     transactor,
-		taskRepository: taskRepository,
-		userRepository: userRepository,
+		layout:                layout,
+		input:                 input,
+		transactor:            transactor,
+		taskRepository:        taskRepository,
+		userRepository:        userRepository,
+		transactionRepository: transactionRepository,
 	}
 }
 
@@ -57,6 +64,7 @@ type taskToPrint struct {
 	Title         string
 	ScheduledDate string
 	RewardValue   int32
+	Number        int
 }
 
 func (h *Handler) userByIDWithProcessedError(ctx context.Context, c tele.Context, userID int64) *models.User {
@@ -86,7 +94,7 @@ func (h *Handler) tasksToPrint(timezone string, tasks []models.Task) []taskToPri
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
 	tomorrow := today.AddDate(0, 0, 1)
 
-	for _, task := range tasks {
+	for i, task := range tasks {
 		taskDate := task.ScheduledDate.In(loc)
 		taskDateOnly := time.Date(taskDate.Year(), taskDate.Month(), taskDate.Day(), 0, 0, 0, 0, loc)
 
@@ -105,6 +113,7 @@ func (h *Handler) tasksToPrint(timezone string, tasks []models.Task) []taskToPri
 			Title:         task.Title,
 			ScheduledDate: dateStr,
 			RewardValue:   task.RewardValue,
+			Number:        i + 1,
 		})
 	}
 
