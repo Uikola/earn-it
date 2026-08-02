@@ -1,0 +1,9 @@
+bin
+.env
+.env.example
+deployments
+.git
+.gitignore
+*.md
+opencode.json
+Taskfile.yaml

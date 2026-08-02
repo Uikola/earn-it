@@ -38,13 +38,24 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("error loading .env file: %w", err)
 	}
 
-	db, err := postgres.InitDB(ctx, "postgres://postgres:password@localhost:5433/earnit?sslmode=disable")
+	postgresDSN := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DB"),
+	)
+
+	db, err := postgres.InitDB(ctx, postgresDSN)
 	if err != nil {
 		return fmt.Errorf("failed to init db: %w", err)
 	}
 	defer db.Close()
 
-	redisClient, err := redis.InitClient(ctx, "localhost:6379", "password")
+	redisAddr := fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	redisClient, err := redis.InitClient(ctx, redisAddr, redisPassword)
 	if err != nil {
 		return fmt.Errorf("failed to init redis client: %w", err)
 	}
