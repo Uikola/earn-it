@@ -100,7 +100,7 @@ func (h *Handler) CompleteTask(c tele.Context) error {
 			return fmt.Errorf("failed to complete task: %w", err)
 		}
 
-		if _, err := h.transactionRepository.CreateTransaction(txctx, userID, task.RewardValue, "task", task.ID); err != nil {
+		if _, err := h.transactionRepository.CreateTransaction(txctx, userID, task.RewardValue, "task", task.Title); err != nil {
 			return fmt.Errorf("failed to create transaction: %w", err)
 		}
 

@@ -161,16 +161,16 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 }
 
 const createTransaction = `-- name: CreateTransaction :one
-INSERT INTO transactions (user_id, amount, source, source_id)
+INSERT INTO transactions (user_id, amount, source, source_name)
 VALUES ($1, $2, $3, $4)
-RETURNING id, user_id, amount, source, source_id, created_at
+RETURNING id, user_id, amount, source, source_name, created_at
 `
 
 type CreateTransactionParams struct {
-	UserID   int64
-	Amount   int32
-	Source   string
-	SourceID pgtype.Int8
+	UserID     int64
+	Amount     int32
+	Source     string
+	SourceName string
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
@@ -178,7 +178,7 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		arg.UserID,
 		arg.Amount,
 		arg.Source,
-		arg.SourceID,
+		arg.SourceName,
 	)
 	var i Transaction
 	err := row.Scan(
@@ -186,7 +186,7 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		&i.UserID,
 		&i.Amount,
 		&i.Source,
-		&i.SourceID,
+		&i.SourceName,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -485,6 +485,53 @@ func (q *Queries) PurchasesByUserID(ctx context.Context, userID int64) ([]Purcha
 	return items, nil
 }
 
+const recentTransactionsWithDetails = `-- name: RecentTransactionsWithDetails :many
+SELECT id, amount, source, source_name, created_at
+FROM transactions
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT $2
+`
+
+type RecentTransactionsWithDetailsParams struct {
+	UserID int64
+	Limit  int32
+}
+
+type RecentTransactionsWithDetailsRow struct {
+	ID         int64
+	Amount     int32
+	Source     string
+	SourceName string
+	CreatedAt  pgtype.Timestamptz
+}
+
+func (q *Queries) RecentTransactionsWithDetails(ctx context.Context, arg RecentTransactionsWithDetailsParams) ([]RecentTransactionsWithDetailsRow, error) {
+	rows, err := q.db.Query(ctx, recentTransactionsWithDetails, arg.UserID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []RecentTransactionsWithDetailsRow
+	for rows.Next() {
+		var i RecentTransactionsWithDetailsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Amount,
+			&i.Source,
+			&i.SourceName,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const rescheduleExpiredTasks = `-- name: RescheduleExpiredTasks :exec
 UPDATE tasks
 SET scheduled_date = $2
@@ -710,8 +757,34 @@ func (q *Queries) TasksByUserID(ctx context.Context, userID int64) ([]Task, erro
 	return items, nil
 }
 
+const totalExpense = `-- name: TotalExpense :one
+SELECT COALESCE(SUM(ABS(amount)), 0)
+FROM transactions
+WHERE user_id = $1 AND amount < 0
+`
+
+func (q *Queries) TotalExpense(ctx context.Context, userID int64) (interface{}, error) {
+	row := q.db.QueryRow(ctx, totalExpense, userID)
+	var coalesce interface{}
+	err := row.Scan(&coalesce)
+	return coalesce, err
+}
+
+const totalIncome = `-- name: TotalIncome :one
+SELECT COALESCE(SUM(amount), 0)
+FROM transactions
+WHERE user_id = $1 AND amount > 0
+`
+
+func (q *Queries) TotalIncome(ctx context.Context, userID int64) (interface{}, error) {
+	row := q.db.QueryRow(ctx, totalIncome, userID)
+	var coalesce interface{}
+	err := row.Scan(&coalesce)
+	return coalesce, err
+}
+
 const transactionsByUserID = `-- name: TransactionsByUserID :many
-SELECT id, user_id, amount, source, source_id, created_at
+SELECT id, user_id, amount, source, source_name, created_at
 FROM transactions
 WHERE user_id = $1
 ORDER BY created_at DESC
@@ -738,7 +811,7 @@ func (q *Queries) TransactionsByUserID(ctx context.Context, arg TransactionsByUs
 			&i.UserID,
 			&i.Amount,
 			&i.Source,
-			&i.SourceID,
+			&i.SourceName,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

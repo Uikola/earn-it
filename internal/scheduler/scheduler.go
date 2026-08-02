@@ -21,11 +21,11 @@ type habitRepository interface {
 	HabitsByUserID(ctx context.Context, userID int64) ([]models.Habit, error)
 	HabitLogsForWeek(ctx context.Context, habitID int64, weekStart time.Time) ([]models.HabitLog, error)
 	WeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) (models.WeeklyBonus, error)
-	CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) (models.WeeklyBonus, error)
+	CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) error
 }
 
 type transactionRepository interface {
-	CreateTransaction(ctx context.Context, userID int64, amount int32, source string, sourceID int64) (models.Transaction, error)
+	CreateTransaction(ctx context.Context, userID int64, amount int32, source, sourceName string) (models.Transaction, error)
 }
 
 type notifier interface {

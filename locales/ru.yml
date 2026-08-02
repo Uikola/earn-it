@@ -92,3 +92,14 @@ task_complete_text: |-
   Выберите задачу для выполнения
 task_delete_text: |-
   Выберите задачу для удаления
+
+wallet_menu_text: |-
+  💰 Ваш баланс: {{ .Balance }} 🪙
+  
+  Всего заработано: {{ .TotalIncome }} 🪙
+  Всего потрачено: {{ .TotalExpense }} 🪙
+  {{ if .Transactions }}
+  📜 Последние транзакции:
+  {{ range .Transactions }}{{ .FormattedAmount }} 🪙 — {{ .SourceName }} ({{ .FormattedDate }})
+  {{ end }}{{ else }}
+  Нет транзакций{{ end }}

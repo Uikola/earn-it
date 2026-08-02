@@ -96,6 +96,9 @@ buttons:
   walletMenu:
     unique: walletMenu
     text: '💰 Кошёлек'
+  wallet:history:
+    unique: walletHistory
+    text: '📜 История транзакций'
 
   settingsMenu:
     unique: settingsMenu
@@ -140,3 +143,7 @@ markups:
     - [ mainMenuBack ]
   tasksMenuBack:
     - [ tasksMenuBack ]
+
+  walletMenu:
+    - [ wallet:history ]
+    - [ mainMenuBack ]

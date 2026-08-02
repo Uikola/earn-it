@@ -24,7 +24,7 @@ type taskRepository interface {
 }
 
 type transactionRepository interface {
-	CreateTransaction(ctx context.Context, userID int64, amount int32, source string, sourceID int64) (models.Transaction, error)
+	CreateTransaction(ctx context.Context, userID int64, amount int32, source, sourceName string) (models.Transaction, error)
 }
 
 type userRepository interface {

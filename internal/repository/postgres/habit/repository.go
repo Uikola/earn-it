@@ -134,7 +134,7 @@ func (r *Repository) WeeklyBonus(ctx context.Context, userID int64, weekStart ti
 	return toDomainWeeklyBonus(bonus), nil
 }
 
-func (r *Repository) CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) (models.WeeklyBonus, error) {
+func (r *Repository) CreateWeeklyBonus(ctx context.Context, userID int64, weekStart time.Time) error {
 	q := r.queries(ctx)
 
 	weekStartParam := pgtype.Date{
@@ -142,23 +142,10 @@ func (r *Repository) CreateWeeklyBonus(ctx context.Context, userID int64, weekSt
 		Valid: true,
 	}
 
-	err := q.CreateWeeklyBonus(ctx, sqlc.CreateWeeklyBonusParams{
+	return q.CreateWeeklyBonus(ctx, sqlc.CreateWeeklyBonusParams{
 		UserID:    userID,
 		WeekStart: weekStartParam,
 	})
-	if err != nil {
-		return models.WeeklyBonus{}, err
-	}
-
-	bonus, err := q.WeeklyBonus(ctx, sqlc.WeeklyBonusParams{
-		UserID:    userID,
-		WeekStart: weekStartParam,
-	})
-	if err != nil {
-		return models.WeeklyBonus{}, err
-	}
-
-	return toDomainWeeklyBonus(bonus), nil
 }
 
 func toDomainHabit(h sqlc.Habit) models.Habit {

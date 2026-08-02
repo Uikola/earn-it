@@ -193,7 +193,7 @@ WHERE user_id = $1
 ORDER BY purchased_at DESC;
 
 -- name: CreateTransaction :one
-INSERT INTO transactions (user_id, amount, source, source_id)
+INSERT INTO transactions (user_id, amount, source, source_name)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
@@ -213,5 +213,21 @@ SELECT balance
 FROM users
 WHERE id = $1;
 
+-- name: TotalIncome :one
+SELECT COALESCE(SUM(amount), 0)
+FROM transactions
+WHERE user_id = $1 AND amount > 0;
+
+-- name: TotalExpense :one
+SELECT COALESCE(SUM(ABS(amount)), 0)
+FROM transactions
+WHERE user_id = $1 AND amount < 0;
+
+-- name: RecentTransactionsWithDetails :many
+SELECT id, amount, source, source_name, created_at
+FROM transactions
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT $2;
 
 

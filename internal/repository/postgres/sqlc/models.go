@@ -58,12 +58,12 @@ type Task struct {
 }
 
 type Transaction struct {
-	ID        int64
-	UserID    int64
-	Amount    int32
-	Source    string
-	SourceID  pgtype.Int8
-	CreatedAt pgtype.Timestamptz
+	ID         int64
+	UserID     int64
+	Amount     int32
+	Source     string
+	SourceName string
+	CreatedAt  pgtype.Timestamptz
 }
 
 type User struct {

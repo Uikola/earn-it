@@ -77,12 +77,12 @@ CREATE TABLE purchases
 -- 9. Журнал всех транзакций (для баланса и отладки)
 CREATE TABLE transactions
 (
-    id         BIGSERIAL PRIMARY KEY,
-    user_id    BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    amount     INT    NOT NULL, -- положительное – доход, отрицательное – расход
-    source     TEXT   NOT NULL CHECK (source IN ('task', 'habit_log', 'habit_bonus', 'purchase', 'system')),
-    source_id  BIGINT,          -- ID связанной сущности (task.id, habit_log.id и т.д.)
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    id          BIGSERIAL PRIMARY KEY,
+    user_id     BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    amount      INT    NOT NULL, -- положительное – доход, отрицательное – расход
+    source      TEXT   NOT NULL CHECK (source IN ('task', 'habit_log', 'habit_bonus', 'purchase', 'system')),
+    source_name TEXT   NOT NULL DEFAULT '', -- название связанной сущности (task.title, habit.name и т.д.)
+    created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- +goose Down

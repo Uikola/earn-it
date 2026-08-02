@@ -104,12 +104,11 @@ func (h *Handler) CompleteHabit(c tele.Context) error {
 	}
 
 	err = h.transactor.WithinTransaction(ctx, func(txctx context.Context) error {
-		habitLog, err := h.habitsRepository.CreateHabitLog(txctx, habitID)
-		if err != nil {
+		if _, err := h.habitsRepository.CreateHabitLog(txctx, habitID); err != nil {
 			return fmt.Errorf("failed to create habit: %w", err)
 		}
 
-		if _, err := h.transactionRepository.CreateTransaction(txctx, userID, habit.RewardPerExecute, "habit_log", habitLog.ID); err != nil {
+		if _, err := h.transactionRepository.CreateTransaction(txctx, userID, habit.RewardPerExecute, "habit_log", habit.Name); err != nil {
 			return fmt.Errorf("failed to create transaction: %w", err)
 		}
 

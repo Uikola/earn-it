@@ -17,6 +17,7 @@ import (
 	"github.com/Uikola/earn-it/internal/telegram/handlers/habits"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/start"
 	"github.com/Uikola/earn-it/internal/telegram/handlers/tasks"
+	"github.com/Uikola/earn-it/internal/telegram/handlers/wallet"
 )
 
 type Bot struct {
@@ -65,6 +66,7 @@ func (bot *Bot) Setup(
 	startHandler := start.NewHandler(bot.Layout, bot.Input, userRepository)
 	habitsHandler := habits.NewHandler(bot.Layout, bot.Input, transactor, habitRepository, userRepository, transactionRepository)
 	tasksHandler := tasks.NewHandler(bot.Layout, bot.Input, transactor, taskRepository, userRepository, transactionRepository)
+	walletHandler := wallet.NewHandler(bot.Layout, userRepository, transactionRepository)
 
 	bot.Use(bot.Layout.Middleware("ru"))
 	bot.Use(middleware.AutoRespond())
@@ -98,6 +100,9 @@ func (bot *Bot) Setup(
 	bot.Handle(bot.Layout.Callback("tasks:complete:task"), tasksHandler.CompleteTask)
 	bot.Handle(bot.Layout.Callback("tasks:delete"), tasksHandler.DeleteTasks)
 	bot.Handle(bot.Layout.Callback("tasks:delete:task"), tasksHandler.DeleteTask)
+
+	bot.Handle(bot.Layout.Callback("walletMenu"), walletHandler.Wallet)
+	bot.Handle(bot.Layout.Callback("wallet:history"), walletHandler.Wallet)
 }
 
 // ResetInputOnBack middleware clears the input state when the back button is pressed.
