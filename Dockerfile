@@ -11,6 +11,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o bot ./cmd/bot
 
 FROM alpine:3.20
 
+RUN apk add --no-cache tzdata
+
 WORKDIR /app
 
 COPY --from=builder /app/bot .
