@@ -3,10 +3,10 @@ package habits
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strconv"
 	"time"
 
-	"github.com/google/martian/log"
 	tele "gopkg.in/telebot.v3"
 
 	"github.com/Uikola/earn-it/internal/timeutil"
@@ -37,7 +37,7 @@ func (h *Handler) CompleteHabits(c tele.Context) error {
 	for _, habit := range habits {
 		habitLogsForWeek, err := h.habitsRepository.HabitLogsForWeek(ctx, habit.ID, weekStart)
 		if err != nil {
-			log.Errorf("failed to fetch habit logs for week: %v", err)
+			slog.Error("failed to fetch habit logs for week", slog.String("err", err.Error()), slog.Int64("habitID", habit.ID))
 			return c.Edit(
 				h.layout.Text(c, "technical_issues"),
 				h.layout.Markup(c, "mainMenuBack"),
@@ -87,7 +87,7 @@ func (h *Handler) CompleteHabit(c tele.Context) error {
 
 	habitID, err := strconv.ParseInt(c.Callback().Data, 10, 64)
 	if err != nil {
-		log.Errorf("invalid callback data for complete habit handler: %v", err)
+		slog.Error("invalid callback data for complete habit handler", slog.String("err", err.Error()))
 		return c.Edit(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
@@ -96,7 +96,7 @@ func (h *Handler) CompleteHabit(c tele.Context) error {
 
 	habit, err := h.habitsRepository.HabitByID(ctx, habitID)
 	if err != nil {
-		log.Errorf("failed to fetch habit: %v", err)
+		slog.Error("failed to fetch habit", slog.String("err", err.Error()), slog.Int64("habitID", habitID))
 		return c.Edit(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
@@ -115,7 +115,7 @@ func (h *Handler) CompleteHabit(c tele.Context) error {
 		return nil
 	})
 	if err != nil {
-		log.Errorf("failed to complete transaction: %v", err)
+		slog.Error("failed to complete transaction", slog.String("err", err.Error()), slog.Int64("habitID", habitID))
 		return c.Edit(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),

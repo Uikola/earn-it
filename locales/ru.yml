@@ -63,15 +63,15 @@ weekly_bonus_notification: |-
 tasks_menu_today: |-
   📋 Задачи на сегодня ({{ .Count }} шт.):
   
-  {{ range .Tasks }}───────────────────────{{"\n"}}<b>{{ .Title }}</b>{{"\n"}}▸ 🗓️ {{ .ScheduledDate }} | {{ .RewardValue }} 🪙{{"\n"}}───────────────────────{{"\n"}}{{ end }}
+  {{ range .Tasks }}───────────────────────{{"\n"}}<b>{{ .Number }}{{ .Title }}</b>{{"\n"}}▸ 🗓️ {{ .ScheduledDate }} | {{ .RewardValue }} 🪙{{"\n"}}───────────────────────{{"\n"}}{{ end }}
 tasks_menu_tomorrow: |-
   📋 Задачи на завтра ({{ .Count }} шт.):
   
-  {{ range .Tasks }}───────────────────────{{"\n"}}<b>{{ .Title }}</b>{{"\n"}}▸ 🗓️ {{ .ScheduledDate }} | {{ .RewardValue }} 🪙{{"\n"}}───────────────────────{{"\n"}}{{ end }}
+  {{ range .Tasks }}───────────────────────{{"\n"}}<b>{{ .Number }}{{ .Title }}</b>{{"\n"}}▸ 🗓️ {{ .ScheduledDate }} | {{ .RewardValue }} 🪙{{"\n"}}───────────────────────{{"\n"}}{{ end }}
 tasks_menu_later: |-
   📋 Задачи ({{ .Count }} шт.):
   
-  {{ range .Tasks }}───────────────────────{{"\n"}}<b>{{ .Title }}</b>{{"\n"}}▸ 🗓️ {{ .ScheduledDate }} | {{ .RewardValue }} 🪙{{"\n"}}───────────────────────{{"\n"}}{{ end }}
+  {{ range .Tasks }}───────────────────────{{"\n"}}<b>{{ .Number }}{{ .Title }}</b>{{"\n"}}▸ 🗓️ {{ .ScheduledDate }} | {{ .RewardValue }} 🪙{{"\n"}}───────────────────────{{"\n"}}{{ end }}
 tasks_empty: |-
   📋 Нет задач
 input_task_title: |-

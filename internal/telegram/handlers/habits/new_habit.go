@@ -3,10 +3,10 @@ package habits
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"strconv"
 	"time"
 
-	"github.com/google/martian/log"
 	tele "gopkg.in/telebot.v3"
 
 	"github.com/Uikola/earn-it/internal/telegram/handlers/helpers"
@@ -44,7 +44,7 @@ func (h *Handler) NewHabit(c tele.Context) error {
 		if errors.Is(err, helpers.ErrCanceled) {
 			return nil
 		}
-		log.Errorf("failed to collect input: %v", err)
+		slog.Error("failed to collect input", slog.String("err", err.Error()))
 		return c.Send(h.layout.Text(c, "technical_issues"), h.layout.Markup(c, "mainMenuBack"))
 	}
 
@@ -64,7 +64,7 @@ func (h *Handler) NewHabit(c tele.Context) error {
 
 	_, err = h.habitsRepository.CreateHabit(ctx, userID, habitName, habitWeeklyGoal, habitRewardForExecute)
 	if err != nil {
-		log.Errorf("failed to create habit: %v", err)
+		slog.Error("failed to create habit", slog.String("err", err.Error()), slog.Int64("userID", userID))
 		return c.Send(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),

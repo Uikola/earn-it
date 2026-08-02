@@ -2,9 +2,9 @@ package habits
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
-	"github.com/google/martian/log"
 	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
@@ -84,7 +84,7 @@ func progressBar(done, goal int32) string {
 func (h *Handler) userByIDWithProcessedError(ctx context.Context, c tele.Context, userID int64, action string) *models.User {
 	user, err := h.userRepository.UserByID(ctx, userID)
 	if err != nil {
-		log.Errorf("failed to fetch user: %v", err)
+		slog.Error("failed to fetch user", slog.String("err", err.Error()), slog.Int64("userID", userID))
 
 		switch action {
 		case "send":
@@ -92,7 +92,7 @@ func (h *Handler) userByIDWithProcessedError(ctx context.Context, c tele.Context
 				h.layout.Text(c, "technical_issues"),
 				h.layout.Markup(c, "mainMenuBack"),
 			); err != nil {
-				log.Errorf("SendError while userByIDWithProcessedError")
+				slog.Error("send error while userByIDWithProcessedError", slog.String("err", err.Error()))
 				return nil
 			}
 		case "edit":
@@ -100,7 +100,7 @@ func (h *Handler) userByIDWithProcessedError(ctx context.Context, c tele.Context
 				h.layout.Text(c, "technical_issues"),
 				h.layout.Markup(c, "mainMenuBack"),
 			); err != nil {
-				log.Errorf("EditError while userByIDWithProcessedError")
+				slog.Error("edit error while userByIDWithProcessedError", slog.String("err", err.Error()))
 				return nil
 			}
 		}
@@ -114,7 +114,7 @@ func (h *Handler) userByIDWithProcessedError(ctx context.Context, c tele.Context
 func (h *Handler) habitsByUserIDWithProcessedError(ctx context.Context, c tele.Context, userID int64, action string) []models.Habit {
 	habits, err := h.habitsRepository.HabitsByUserID(ctx, userID)
 	if err != nil {
-		log.Errorf("failed to fetch habits: %v", err)
+		slog.Error("failed to fetch habits", slog.String("err", err.Error()), slog.Int64("userID", userID))
 
 		switch action {
 		case "send":
@@ -122,7 +122,7 @@ func (h *Handler) habitsByUserIDWithProcessedError(ctx context.Context, c tele.C
 				h.layout.Text(c, "technical_issues"),
 				h.layout.Markup(c, "mainMenuBack"),
 			); err != nil {
-				log.Errorf("SendError while habitsByUserIDWithProcessedError")
+				slog.Error("send error while habitsByUserIDWithProcessedError", slog.String("err", err.Error()))
 				return nil
 			}
 		case "edit":
@@ -130,7 +130,7 @@ func (h *Handler) habitsByUserIDWithProcessedError(ctx context.Context, c tele.C
 				h.layout.Text(c, "technical_issues"),
 				h.layout.Markup(c, "mainMenuBack"),
 			); err != nil {
-				log.Errorf("EditError while habitsByUserIDWithProcessedError")
+				slog.Error("edit error while habitsByUserIDWithProcessedError", slog.String("err", err.Error()))
 				return nil
 			}
 		}
@@ -144,12 +144,12 @@ func (h *Handler) habitsToPrint(ctx context.Context, c tele.Context, weekStart t
 	for _, habit := range habits {
 		habitLogsForWeek, err := h.habitsRepository.HabitLogsForWeek(ctx, habit.ID, weekStart)
 		if err != nil {
-			log.Errorf("failed to fetch habit logs for week: %v", err)
+			slog.Error("failed to fetch habit logs for week", slog.String("err", err.Error()), slog.Int64("habitID", habit.ID))
 			if err := c.Edit(
 				h.layout.Text(c, "technical_issues"),
 				h.layout.Markup(c, "mainMenuBack"),
 			); err != nil {
-				log.Errorf("EditError while habitsToPrint")
+				slog.Error("edit error while habitsToPrint", slog.String("err", err.Error()))
 				return nil
 			}
 		}

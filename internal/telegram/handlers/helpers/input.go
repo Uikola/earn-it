@@ -3,8 +3,8 @@ package helpers
 import (
 	"context"
 	"errors"
+	"log/slog"
 
-	"github.com/google/martian/log"
 	"github.com/nlypage/intele"
 	"github.com/nlypage/intele/collector"
 	tele "gopkg.in/telebot.v3"
@@ -86,7 +86,7 @@ func CollectInput(
 			}
 
 			if err != nil {
-				log.Errorf("input error: %v", err)
+				slog.Error("input error", slog.String("err", err.Error()))
 				if stepMarkup != nil {
 					_ = ic.Send(c, layout.Text(c, "technical_issues"), stepMarkup)
 				} else {

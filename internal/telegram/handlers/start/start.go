@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log/slog"
 	"strconv"
 
-	"github.com/google/martian/log"
 	"github.com/nlypage/intele"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/layout"
@@ -50,7 +50,7 @@ func (h *Handler) Start(c tele.Context) error {
 	}
 
 	if !errors.Is(err, sql.ErrNoRows) {
-		log.Errorf("failed to fetch user: %s", err)
+		slog.Error("failed to fetch user", slog.String("err", err.Error()), slog.Int64("userID", userID))
 		return c.Send(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
@@ -77,7 +77,7 @@ func (h *Handler) Start(c tele.Context) error {
 		if errors.Is(err, helpers.ErrCanceled) {
 			return nil
 		}
-		log.Errorf("failed to collect input: %v", err)
+		slog.Error("failed to collect input", slog.String("err", err.Error()))
 		return c.Send(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
@@ -89,7 +89,7 @@ func (h *Handler) Start(c tele.Context) error {
 
 	_, err = h.userRepository.CreateUser(ctx, userID, timezone, int32(rewardWeeklyBonus))
 	if err != nil {
-		log.Errorf("failed to create user: %s", err)
+		slog.Error("failed to create user", slog.String("err", err.Error()), slog.Int64("userID", userID))
 		return c.Send(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
@@ -114,7 +114,7 @@ func (h *Handler) MainMenu(c tele.Context) error {
 	}
 
 	if !errors.Is(err, sql.ErrNoRows) {
-		log.Errorf("failed to fetch user: %s", err)
+		slog.Error("failed to fetch user", slog.String("err", err.Error()), slog.Int64("userID", c.Sender().ID))
 		return c.Edit(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),

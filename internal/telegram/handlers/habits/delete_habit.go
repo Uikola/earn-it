@@ -2,10 +2,10 @@ package habits
 
 import (
 	"context"
+	"log/slog"
 	"strconv"
 	"time"
 
-	"github.com/google/martian/log"
 	tele "gopkg.in/telebot.v3"
 
 	"github.com/Uikola/earn-it/internal/timeutil"
@@ -51,7 +51,7 @@ func (h *Handler) DeleteHabit(c tele.Context) error {
 
 	habitID, err := strconv.ParseInt(c.Callback().Data, 10, 64)
 	if err != nil {
-		log.Errorf("invalid callback data for complete habit handler: %v", err)
+		slog.Error("invalid callback data for complete habit handler", slog.String("err", err.Error()))
 		return c.Edit(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
@@ -59,7 +59,7 @@ func (h *Handler) DeleteHabit(c tele.Context) error {
 	}
 
 	if err := h.habitsRepository.DeleteHabit(ctx, habitID); err != nil {
-		log.Errorf("failed to delete habit log: %v", err)
+		slog.Error("failed to delete habit log", slog.String("err", err.Error()), slog.Int64("habitID", habitID))
 		return c.Edit(
 			h.layout.Text(c, "technical_issues"),
 			h.layout.Markup(c, "mainMenuBack"),
