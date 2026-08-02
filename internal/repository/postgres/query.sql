@@ -47,10 +47,11 @@ FROM tasks
 WHERE id = $1
 LIMIT 1;
 
--- TasksByUserID :many
+-- name: TasksByUserID :many
 SELECT *
 FROM tasks
 WHERE user_id = $1
+  AND status = 'pending'
 ORDER BY scheduled_date, created_at;
 
 -- TasksByProjectID :many

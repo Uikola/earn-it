@@ -98,6 +98,22 @@ func (r *Repository) RescheduleExpiredTasks(ctx context.Context, userID int64, t
 	})
 }
 
+func (r *Repository) TasksByUserID(ctx context.Context, userID int64) ([]models.Task, error) {
+	q := r.queries(ctx)
+
+	tasks, err := q.TasksByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	domainTasks := make([]models.Task, 0, len(tasks))
+	for _, t := range tasks {
+		domainTasks = append(domainTasks, toDomainTask(t))
+	}
+
+	return domainTasks, nil
+}
+
 func (r *Repository) DeleteTask(ctx context.Context, taskID int64) error {
 	q := r.queries(ctx)
 	return q.DeleteTask(ctx, taskID)

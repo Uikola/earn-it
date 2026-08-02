@@ -48,9 +48,16 @@ buttons:
     text: '➕ Новая задача'
   tasks:complete:
     unique: completeTask
-    text: '✅ Выполнить задачу'
+    text: '☑️ Выполнить задачу'
   tasks:complete:task:
     unique: taskToComplete
+    callback_data: '{{ .ID }}'
+    text: '{{ .Title }}'
+  tasks:delete:
+    unique: deleteTask
+    text: '🗑 Удалить'
+  tasks:delete:task:
+    unique: taskToDelete
     callback_data: '{{ .ID }}'
     text: '{{ .Title }}'
 
@@ -114,18 +121,21 @@ markups:
     - [ habitsMenuBack ]
 
   tasksMenuToday:
-    - [ tasks:complete ]
     - [ tasks:new ]
+    - [ tasks:complete ]
+    - [ tasks:delete ]
     - [ tasks:tomorrow, tasks:later ]
     - [ mainMenuBack ]
   tasksMenuTomorrow:
-    - [ tasks:complete ]
     - [ tasks:new ]
+    - [ tasks:complete ]
+    - [ tasks:delete ]
     - [ tasks:today, tasks:later ]
     - [ mainMenuBack ]
   tasksMenuLater:
-    - [ tasks:complete ]
     - [ tasks:new ]
+    - [ tasks:complete ]
+    - [ tasks:delete ]
     - [ tasks:today, tasks:tomorrow ]
     - [ mainMenuBack ]
   tasksMenuBack:

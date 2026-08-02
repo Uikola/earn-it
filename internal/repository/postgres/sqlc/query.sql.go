@@ -672,6 +672,44 @@ func (q *Queries) TasksByUserAndStatus(ctx context.Context, arg TasksByUserAndSt
 	return items, nil
 }
 
+const tasksByUserID = `-- name: TasksByUserID :many
+SELECT id, user_id, project_id, title, scheduled_date, reward_value, status, completed_at, created_at
+FROM tasks
+WHERE user_id = $1
+  AND status = 'pending'
+ORDER BY scheduled_date, created_at
+`
+
+func (q *Queries) TasksByUserID(ctx context.Context, userID int64) ([]Task, error) {
+	rows, err := q.db.Query(ctx, tasksByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.ProjectID,
+			&i.Title,
+			&i.ScheduledDate,
+			&i.RewardValue,
+			&i.Status,
+			&i.CompletedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const transactionsByUserID = `-- name: TransactionsByUserID :many
 SELECT id, user_id, amount, source, source_id, created_at
 FROM transactions

@@ -94,6 +94,8 @@ func (bot *Bot) Setup(
 	bot.Handle(bot.Layout.Callback("tasks:new"), tasksHandler.NewTask)
 	bot.Handle(bot.Layout.Callback("tasks:complete"), tasksHandler.CompleteTasks)
 	bot.Handle(bot.Layout.Callback("tasks:complete:task"), tasksHandler.CompleteTask)
+	bot.Handle(bot.Layout.Callback("tasks:delete"), tasksHandler.DeleteTasks)
+	bot.Handle(bot.Layout.Callback("tasks:delete:task"), tasksHandler.DeleteTask)
 }
 
 // ResetInputOnBack middleware clears the input state when the back button is pressed.

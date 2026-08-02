@@ -17,6 +17,7 @@ type taskRepository interface {
 	CreateTask(ctx context.Context, userID int64, title string, scheduledDate time.Time, rewardValue int32) (models.Task, error)
 	TaskByID(ctx context.Context, taskID int64) (models.Task, error)
 	TasksByUserAndDateRange(ctx context.Context, userID int64, from, to time.Time) ([]models.Task, error)
+	TasksByUserID(ctx context.Context, userID int64) ([]models.Task, error)
 	UpdateTask(ctx context.Context, taskID int64, task models.Task) error
 	RescheduleExpiredTasks(ctx context.Context, userID int64, today time.Time) error
 	DeleteTask(ctx context.Context, taskID int64) error
