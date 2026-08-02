@@ -17,5 +17,6 @@ COPY --from=builder /app/bot .
 COPY --from=builder /app/telegram.yml .
 COPY --from=builder /app/locales ./locales
 COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/.env .
 
 CMD ["./bot"]
